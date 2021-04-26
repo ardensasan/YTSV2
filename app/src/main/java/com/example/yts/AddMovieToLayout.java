@@ -1,11 +1,13 @@
 package com.example.yts;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +31,7 @@ public class AddMovieToLayout {
                             ArrayList<String> movieLinks,
                             ArrayList<String> movieTitles,
                             ArrayList<String> movieYears,
-                            Activity activity) {
+                            Context activity) {
         LinearLayout ll;
         LinearLayout llh_browse_movies = new LinearLayout(activity);
         int imageWidth = (Resources.getSystem().getDisplayMetrics().widthPixels / 2) - 20;
@@ -84,7 +86,7 @@ public class AddMovieToLayout {
                             ArrayList<String> movieLinks,
                             ArrayList<String> movieTitles,
                             ArrayList<String> movieYears,
-                            Activity activity) {
+                            Context activity) {
         LinearLayout ll;
         LinearLayout llh_browse_movies = new LinearLayout(activity);
         TextView textView = new TextView(activity);
@@ -116,6 +118,7 @@ public class AddMovieToLayout {
             imageButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Log.d("waw", "onClick: yaaaaaaaaaaaaaa");
                 }
             });
             ll.addView(imageButton);
@@ -139,35 +142,23 @@ public class AddMovieToLayout {
         }
     }
 
-    private void loadMoviePoster(ImageButton imageButton, String imageURL, Activity activity){
-//        Thread thread = new Thread() {
-//            boolean isFinished = false;
-//            @Override
-//            public void run() {
-//                activity.runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        try {
-//                            while (!isFinished){
-//                                URL url = new URL(imageURL);
-//                                HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-//                                connection.setDoInput(true);
-//                                connection.connect();
-//                                InputStream input = connection.getInputStream();
-//                                Bitmap bitmap = BitmapFactory.decodeStream(input);
-//                                imageButton.setImageBitmap(bitmap);
-//                                isFinished = true;
-//                            }
-//                        } catch (MalformedURLException e) {
-//                            e.printStackTrace();
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        }
-//
-//                    }
-//                });
-//            }
-//        };
-//        thread.start();
+    private void loadMoviePoster(ImageButton imageButton, String imageURL, Context activity){
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try  {
+                    URL url = new URL(imageURL);
+                    HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+                    connection.setDoInput(true);
+                    connection.connect();
+                    InputStream input = connection.getInputStream();
+                    Bitmap bitmap = BitmapFactory.decodeStream(input);
+                    imageButton.setImageBitmap(bitmap);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        thread.start();
     }
 }
