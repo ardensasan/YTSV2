@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.yts.DisplayFilters;
 import com.example.yts.DisplayMovies;
+import com.example.yts.DisplayPagination;
 import com.example.yts.Movie;
 import com.example.yts.R;
 import com.example.yts.SearchFilter;
@@ -27,6 +28,7 @@ public class SearchFragment extends Fragment {
     private static SearchViewModel searchViewModel = null;
     private DisplayMovies displayMovies;
     private DisplayFilters displayFilters;
+    private static DisplayPagination displayPagination;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -34,10 +36,12 @@ public class SearchFragment extends Fragment {
         final TextView textView = root.findViewById(R.id.text_search);
         LinearLayout llv_browse_movies = root.findViewById(R.id.llv_browse_movies);
         LinearLayout llh_movie_filters = root.findViewById(R.id.llh_movie_filters);
+        LinearLayout llh_pagination = root.findViewById(R.id.llh_pagination);
         textView.setText("Fetching Movie List...");
         if(searchViewModel == null) {
             searchViewModel = new ViewModelProvider(this).get(SearchViewModel.class);
             searchViewModel.fetchMovies(getString(R.string.yts_movies), "browse-movie-wrap col-xs-10 col-sm-4 col-md-5 col-lg-4");
+            displayPagination = new DisplayPagination();
             try {
                 searchViewModel.fetchSearchFilters(getString(R.string.yts_movies));
             } catch (IOException e) {
@@ -51,6 +55,7 @@ public class SearchFragment extends Fragment {
                     textView.setText("");
                     displayMovies = new DisplayMovies(movies);
                     displayMovies.display(llv_browse_movies, getActivity(), searchViewModel.getResultNum());
+                    displayPagination.display(2,searchViewModel.getTotalPages(),llh_pagination,getActivity());
                 }
             }
         });
@@ -58,7 +63,6 @@ public class SearchFragment extends Fragment {
         searchViewModel.getSearchFilters().observe(getViewLifecycleOwner(), new Observer<ArrayList<SearchFilter>>() {
             @Override
             public void onChanged(ArrayList<SearchFilter> searchFilters) {
-                Log.d("", "onChanged: "+searchFilters.size());
                 displayFilters = new DisplayFilters(searchFilters, llh_movie_filters, getActivity());
             }
         });

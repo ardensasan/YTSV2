@@ -12,6 +12,7 @@ public class MovieFetcher {
     private boolean isDoneFetching = false;
     private ArrayList<Movie> movies = new ArrayList<>();
     private String resultNum = null;
+    private Integer totalPages = 1;
 
     public MovieFetcher(String url, String elementID, String elementClass){
         Thread thread = new Thread(new Runnable() {
@@ -60,8 +61,15 @@ public class MovieFetcher {
                         String movieURL = element.getElementsByTag("a").attr("href");
                         String movieTitle = element.getElementsByClass("browse-movie-title").text();
                         String movieYear = element.getElementsByClass("browse-movie-year").text();
+
                         Movie movie = new Movie(moviePosterURL, movieURL, movieTitle, movieYear);
                         movies.add(movie);
+                    }
+                    Element element = doc.getElementsByClass("tsc_pagination tsc_paginationA tsc_paginationA06").first();
+                    element = element.getElementsByTag("a").last();
+                    if(element != null){
+                        String string = element.attr("abs:href");
+                        totalPages = Integer.parseInt(string.substring(string.lastIndexOf("=") + 1));
                     }
                     isDoneFetching = true;
                 } catch (IOException e) {
@@ -81,5 +89,9 @@ public class MovieFetcher {
 
     public boolean getIsDoneFetching(){
         return isDoneFetching;
+    }
+
+    public Integer getTotalPages(){
+        return totalPages;
     }
 }

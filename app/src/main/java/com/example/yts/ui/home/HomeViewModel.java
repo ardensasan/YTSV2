@@ -26,15 +26,6 @@ public class HomeViewModel extends ViewModel {
         return latestMoviesList;
     }
 
-    public MutableLiveData<ArrayList<Movie>> getPopularMovies(){
-        return popularMoviesList;
-    }
-
-
-    public MutableLiveData<ArrayList<Movie>> getLatestMovies(){
-        return latestMoviesList;
-    }
-
     public void fetchMovies(String url, String elementID, String elementClass){
         MovieFetcher movieFetcher = new MovieFetcher(url,elementID,elementClass);
         Thread thread = new Thread(new Runnable() {

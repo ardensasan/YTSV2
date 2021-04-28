@@ -22,4 +22,10 @@
         android:name="com.example.yts.ui.downloads.DownloadsFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_downloads" />
+
+    <fragment
+        android:id="@+id/navigation_movie_details"
+        android:name="com.example.yts.ui.MovieDetails"
+        android:label="@string/title_movie_details"
+        tools:layout="@layout/fragment_downloads" />
 </navigation>

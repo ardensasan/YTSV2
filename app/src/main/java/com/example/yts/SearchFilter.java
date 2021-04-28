@@ -1,11 +1,8 @@
 package com.example.yts;
 
-import android.util.Log;
-
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class SearchFilter {

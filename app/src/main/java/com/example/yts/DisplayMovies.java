@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Typeface;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -15,6 +17,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -86,6 +91,11 @@ public class DisplayMovies {
             imageButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    //TODO display movie details
+                    Bundle bundle = new Bundle();
+                    bundle.putString("movie", "yawa");
+                    NavController navController = Navigation.findNavController(activity,R.id.nav_host_fragment);
+                    navController.navigate(R.id.navigation_movie_details,bundle);
                     Log.d("Movie Title", movie.getMovieTitle());
                 }
             });

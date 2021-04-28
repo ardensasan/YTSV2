@@ -28,12 +28,10 @@ public class SearchViewModel extends ViewModel {
         searchFilters = new MutableLiveData<>();
     }
 
-    //return list of movies
     public LiveData<ArrayList<Movie>> getMovies() {
         return movieList;
     }
 
-    //return list of movies
     public LiveData<ArrayList<SearchFilter>> getSearchFilters() {
         return searchFilters;
     }
@@ -77,8 +75,11 @@ public class SearchViewModel extends ViewModel {
         return;
     }
 
-
     public String getResultNum(){
         return movieFetcher.getResultNum();
+    }
+
+    public Integer getTotalPages(){
+        return movieFetcher.getTotalPages();
     }
 }

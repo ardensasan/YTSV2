@@ -7,6 +7,7 @@ import org.jsoup.nodes.Element;
 import java.io.IOException;
 import java.util.ArrayList;
 
+//fetches all search movie filters
 public class SearchFilterFetcher {
     private ArrayList<SearchFilter> searchFilters = new ArrayList<>();
     private boolean isDoneFetching = false;
