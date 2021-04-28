@@ -6,5 +6,6 @@
     <string name="search">Search</string>
     <string name="downloads">Downloads</string>
     <string name="yts_website">https://yts.mx/</string>
+    <string name="yts_movies">https://yts.mx/browse-movies/</string>
     <string name="latest_movies">Latest Movies</string>
 </resources>

@@ -37,7 +37,6 @@ public class HomeViewModel extends ViewModel {
 
     public void fetchMovies(String url, String elementID, String elementClass){
         MovieFetcher movieFetcher = new MovieFetcher(url,elementID,elementClass);
-        movieFetcher.fetch();
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -58,5 +57,6 @@ public class HomeViewModel extends ViewModel {
             }
         });
         thread.start();
+        return;
     }
 }

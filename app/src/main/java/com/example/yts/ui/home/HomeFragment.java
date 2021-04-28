@@ -22,13 +22,13 @@ import java.util.ArrayList;
 public class HomeFragment extends Fragment {
 
     private static HomeViewModel homeViewModel = null;
-    private static DisplayMovies displayMovies = null;
+    private DisplayMovies displayMovies;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_home, container, false);
         final TextView textView = root.findViewById(R.id.tv_home_message);
-        textView.setText("Loading Movies");
+        textView.setText("Fetching Movie List...");
         LinearLayout llv_movies_home = root.findViewById(R.id.llv_movies_home);
         if(homeViewModel == null){
             homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);

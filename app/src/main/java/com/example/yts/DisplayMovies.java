@@ -76,6 +76,7 @@ public class DisplayMovies {
             imageButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Log.d("Movie Title", movie.getMovieTitle());
                 }
             });
             ll.addView(imageButton);
