@@ -1,16 +1,18 @@
 package com.example.yts;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.widget.ImageButton;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
 
 public class Movie {
+    private Bitmap moviePoster = null;
+    private boolean isDoneLoading = false;
     private String moviePosterURL;
     private String movieURL;
     private String movieTitle;
@@ -21,6 +23,31 @@ public class Movie {
         this.movieTitle = movieTitle;
         this.movieYear = movieYear;
         this.moviePosterURL = moviePosterURL;
+        loadBitmap();
+    }
+
+    public void loadBitmap(){
+        Thread thread = new Thread()
+        {
+            @Override
+            public void run() {
+                try {
+                    URL url = new URL(moviePosterURL);
+                    HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+                    connection.setDoInput(true);
+                    connection.connect();
+                    InputStream inputStream = connection.getInputStream();
+                    moviePoster = BitmapFactory.decodeStream(inputStream);
+                    isDoneLoading =true;
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        thread.start();
+        return;
     }
 
     public String getMovieTitle(){
@@ -31,5 +58,9 @@ public class Movie {
 
     public String getMovieYear(){return movieYear;}
 
-    public String getMoviePosterURL(){return moviePosterURL;}
+    public Bitmap getMoviePoster(){return moviePoster;}
+
+    public boolean getIsDoneLoading(){
+        return isDoneLoading;
+    }
 }

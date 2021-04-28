@@ -1,9 +1,7 @@
 package com.example.yts;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.util.Log;
 import android.view.Gravity;
@@ -14,12 +12,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.io.InputStream;
-import java.lang.reflect.Array;
-import java.net.URL;
 import java.util.ArrayList;
 
-import javax.net.ssl.HttpsURLConnection;
 
 public class DisplayMovies {
     private ArrayList<Movie> movies;
@@ -30,7 +24,7 @@ public class DisplayMovies {
     }
 
     //display movies along with header category
-    public void display(String header, LinearLayout linearLayout, Context activity) {
+    public void display(String header, LinearLayout linearLayout, Activity activity) {
         TextView textView = new TextView(activity);
         textView.setText(header);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -47,7 +41,7 @@ public class DisplayMovies {
         displayMovies(linearLayout,activity);
     }
 
-    private void displayMovies(LinearLayout linearLayout, Context activity){
+    private void displayMovies(LinearLayout linearLayout, Activity activity){
         LinearLayout ll;
         LinearLayout llh_browse_movies = new LinearLayout(activity);
         int imageWidth = (Resources.getSystem().getDisplayMetrics().widthPixels / 2) - 20;
@@ -70,8 +64,6 @@ public class DisplayMovies {
             imageButton.setLayoutParams(params);
             imageButton.setScaleType(ImageView.ScaleType.FIT_XY);
 
-//            new BackgroundImageLoader(imageButton,movie.getMoviePosterURL()).loadImage();
-
             //set onclick action
             imageButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -80,6 +72,28 @@ public class DisplayMovies {
                 }
             });
             ll.addView(imageButton);
+
+            //display movie posters
+            Thread thread = new Thread()
+            {
+                @Override
+                public void run() {
+                    while(!movie.getIsDoneLoading()) {
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    ((Activity)activity).runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            imageButton.setImageBitmap(movie.getMoviePoster());
+                        }
+                    });
+                }
+            };
+            thread.start();
 
             // add movie title to layout
             TextView tv = new TextView(activity);
