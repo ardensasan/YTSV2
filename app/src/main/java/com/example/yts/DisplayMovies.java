@@ -1,17 +1,22 @@
 package com.example.yts;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 
@@ -38,10 +43,23 @@ public class DisplayMovies {
         textView.setTypeface(Typeface.DEFAULT_BOLD);
         textView.setTextSize(20);
         linearLayout.addView(textView);
-        displayMovies(linearLayout,activity);
+        display(linearLayout,activity);
     }
 
-    private void displayMovies(LinearLayout linearLayout, Activity activity){
+
+    public void display(LinearLayout linearLayout, Activity activity,String resultNum) {
+        TextView textView = new TextView(activity);
+        textView.setText(resultNum);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.gravity = Gravity.CENTER_HORIZONTAL;
+        textView.setLayoutParams(params);
+        textView.setTypeface(Typeface.DEFAULT_BOLD);
+        textView.setTextSize(20);
+        linearLayout.addView(textView);
+        display(linearLayout,activity);
+    }
+
+    public void display(LinearLayout linearLayout, Activity activity){
         LinearLayout ll;
         LinearLayout llh_browse_movies = new LinearLayout(activity);
         int imageWidth = (Resources.getSystem().getDisplayMetrics().widthPixels / 2) - 20;
@@ -78,9 +96,14 @@ public class DisplayMovies {
             {
                 @Override
                 public void run() {
+                    int counter = 0;
                     while(!movie.getIsDoneLoading()) {
                         try {
+                            counter++;
                             Thread.sleep(100);
+                            if(counter > 100){
+                                break;
+                            }
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }

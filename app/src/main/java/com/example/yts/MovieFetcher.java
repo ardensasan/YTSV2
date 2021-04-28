@@ -10,7 +10,8 @@ import java.util.ArrayList;
 
 public class MovieFetcher {
     private boolean isDoneFetching = false;
-    private ArrayList<Movie> fetchedMovies = new ArrayList<>();
+    private ArrayList<Movie> movies = new ArrayList<>();
+    private String resultNum = null;
 
     public MovieFetcher(String url, String elementID, String elementClass){
         Thread thread = new Thread(new Runnable() {
@@ -33,7 +34,7 @@ public class MovieFetcher {
                         String movieTitle = element.getElementsByClass("browse-movie-title").text();
                         String movieYear = element.getElementsByClass("browse-movie-year").text();
                         Movie movie = new Movie(moviePosterURL, movieURL, movieTitle, movieYear);
-                        fetchedMovies.add(movie);
+                        movies.add(movie);
                     }
                     isDoneFetching = true;
                 } catch (IOException e) {
@@ -44,6 +45,7 @@ public class MovieFetcher {
         thread.start();
     }
 
+    //fetch movies in search result
     public MovieFetcher(String url, String elementClass){
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -52,14 +54,14 @@ public class MovieFetcher {
                 try {
                     Document doc = Jsoup.connect(url).get();
                     Elements elements = doc.getElementsByClass(elementClass);
-
+                    resultNum = doc.select("h2").text();
                     for (Element element : elements) {
                         String moviePosterURL = element.getElementsByTag("img").attr("abs:src");
                         String movieURL = element.getElementsByTag("a").attr("href");
                         String movieTitle = element.getElementsByClass("browse-movie-title").text();
                         String movieYear = element.getElementsByClass("browse-movie-year").text();
                         Movie movie = new Movie(moviePosterURL, movieURL, movieTitle, movieYear);
-                        fetchedMovies.add(movie);
+                        movies.add(movie);
                     }
                     isDoneFetching = true;
                 } catch (IOException e) {
@@ -70,8 +72,11 @@ public class MovieFetcher {
         thread.start();
     }
 
+    public String getResultNum(){
+        return resultNum;
+    }
     public ArrayList<Movie> getFetchedMovies(){
-        return fetchedMovies;
+        return movies;
     }
 
     public boolean getIsDoneFetching(){

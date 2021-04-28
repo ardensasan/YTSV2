@@ -6,37 +6,79 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.yts.Movie;
 import com.example.yts.MovieFetcher;
+import com.example.yts.SearchFilter;
+import com.example.yts.SearchFilterFetcher;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class SearchViewModel extends ViewModel {
-    private boolean newPage = true;
     private MutableLiveData<ArrayList<Movie>> movieList;
+    private MutableLiveData<ArrayList<SearchFilter>> searchFilters;
+    MovieFetcher movieFetcher;
+    SearchFilterFetcher searchFilterFetcher;
 
     public SearchViewModel() {
         movieList = new MutableLiveData<>();
+        searchFilters = new MutableLiveData<>();
     }
 
+    //return list of movies
     public LiveData<ArrayList<Movie>> getMovies() {
         return movieList;
     }
 
+    //return list of movies
+    public LiveData<ArrayList<SearchFilter>> getSearchFilters() {
+        return searchFilters;
+    }
+
+
     public void fetchMovies(String url, String elementClass){
-        MovieFetcher movieFetcher = new MovieFetcher(url,elementClass);
+        movieFetcher = new MovieFetcher(url,elementClass);
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 while(!movieFetcher.getIsDoneFetching()){
                     try {
-                        Thread.sleep(100);
+                        Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
-                    movieList.postValue(movieFetcher.getFetchedMovies());
+                movieList.postValue(movieFetcher.getFetchedMovies());
             }
         });
         thread.start();
         return;
+    }
+
+    public void fetchSearchFilters(String url) throws IOException {
+        searchFilterFetcher = new SearchFilterFetcher(url);
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(!searchFilterFetcher.getIsDoneFetching()){
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                searchFilters.postValue(searchFilterFetcher.getSearchFilters());
+            }
+        });
+        thread.start();
+        return;
+    }
+
+
+    public String getResultNum(){
+        return movieFetcher.getResultNum();
     }
 }
