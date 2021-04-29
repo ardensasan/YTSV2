@@ -3,6 +3,8 @@ package com.example.yts;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.view.Gravity;
 import android.view.View;
@@ -19,7 +21,12 @@ import org.jsoup.select.Elements;
 import org.w3c.dom.Text;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class MovieDetails {
     private String movieType = null;
@@ -122,20 +129,42 @@ public class MovieDetails {
         linearLayout.addView(textView);
 
 
-
-        //dynamically add text to text views
+        //display ratings
         for (int i = 1; i < movieRatings.size(); i++) {
+            LinearLayout ll = new LinearLayout(activity);
+            ll.setOrientation(LinearLayout.HORIZONTAL);
+
+            //rating logo
+            ImageView imageView = new ImageView(activity);
+            if(i == 1){
+                imageView.setImageResource(R.drawable.ic_movie_likes_24dp);
+            }else if(i == movieRatings.size()-1){
+                imageView.setImageResource(R.drawable.ic_logo_imdb);
+            }else{
+                loadImage(activity, imageView, movieRatingImages.get(i-1));
+            }
+            params = new LinearLayout.LayoutParams(50,50);
+            params.setMargins(10,0,10,0);
+            imageView.setLayoutParams(params);
+            ll.addView(imageView);
+
+            //rating text
             textView = new TextView(activity);
             textView.setText(movieRatings.get(i-1));
-            textView.setLayoutParams(params);
-            linearLayout.addView(textView);
+            ll.addView(textView);
+
+            linearLayout.addView(ll);
+        }
+        //add image to image views
+        for (int i = 1; i < movieRatings.size(); i++) {
         }
         llh_movie_details.addView(linearLayout);
 
+        params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.setMargins(10,10,0,20);
         textView = new TextView(activity);
         textView.setText(movieSynopsis);
         textView.setLayoutParams(params);
-        params.setMargins(10,10,0,20);
         llv_movie_details.addView(textView);
         displayDownloadLinks(llv_movie_details, activity);
         return;
@@ -172,5 +201,35 @@ public class MovieDetails {
             linearLayout.addView(button);
             llv_movie_details.addView(linearLayout);
         }
+    }
+
+    private void loadImage(Activity activity,ImageView imageView, String imageURL){
+        Thread thread = new Thread()
+        {
+            @Override
+            public void run() {
+                Bitmap bitmap = null;
+                URL url = null;
+                try {
+                    url = new URL(imageURL);
+                    HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+                    connection.setDoInput(true);
+                    connection.connect();
+                    InputStream inputStream = connection.getInputStream();
+                    bitmap = BitmapFactory.decodeStream(inputStream);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Bitmap finalBitmap = bitmap;
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        imageView.setImageBitmap(finalBitmap);
+                    }
+                });
+            }
+        };
+        thread.start();
+        return;
     }
 }

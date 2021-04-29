@@ -23,7 +23,6 @@ import com.example.yts.R;
 public class MovieDetailsFragment extends Fragment {
 
     private MovieDetailsViewModel movieDetailsViewModel;
-    private DisplayMovies displayMovies;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -56,5 +55,4 @@ public class MovieDetailsFragment extends Fragment {
         });
         return root;
     }
-
 }
