@@ -1,28 +1,23 @@
-package com.example.yts;
+package com.example.yts.core.display;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.os.Parcelable;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import java.io.Serializable;
-import java.lang.reflect.Array;
+import com.example.yts.core.classes.Movie;
+import com.example.yts.R;
+
 import java.util.ArrayList;
 
 

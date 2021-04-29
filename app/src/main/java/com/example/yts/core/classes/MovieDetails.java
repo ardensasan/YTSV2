@@ -1,6 +1,7 @@
-package com.example.yts;
+package com.example.yts.core.classes;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -13,6 +14,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.example.yts.R;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -31,12 +35,16 @@ import javax.net.ssl.HttpsURLConnection;
 public class MovieDetails {
     private String movieType = null;
     private String movieSynopsis = null;
+    private String movieTitle = null;
     private ArrayList<String> movieRatingImages = new ArrayList<>();
     private ArrayList<String> movieRatings = new ArrayList<>();
     private ArrayList<String> movieQuality = new ArrayList<>();
     private ArrayList<String> magnetLinks = new ArrayList<>();
     private boolean isDoneFetching = false;
 
+    public MovieDetails(String movieTitle){
+        this.movieTitle = movieTitle;
+    }
     public void fetchMovieDetails(String movieURL){
         new Thread(new Runnable() {
             @Override
@@ -195,6 +203,8 @@ public class MovieDetails {
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Toast.makeText(activity, movieTitle+" added to downloads", Toast.LENGTH_SHORT).show();
+
                     //TODO download torrent magnet link
                 }
             });

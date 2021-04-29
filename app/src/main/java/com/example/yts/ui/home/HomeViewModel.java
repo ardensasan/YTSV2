@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.yts.Movie;
-import com.example.yts.MovieFetcher;
+import com.example.yts.core.classes.Movie;
+import com.example.yts.core.fetcher.MovieFetcher;
 
 import java.util.ArrayList;
 

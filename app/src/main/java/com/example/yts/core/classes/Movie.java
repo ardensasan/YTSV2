@@ -1,4 +1,4 @@
-package com.example.yts;
+package com.example.yts.core.classes;
 
 import android.app.Activity;
 import android.graphics.Bitmap;

@@ -12,8 +12,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.yts.DisplayMovies;
-import com.example.yts.Movie;
+import com.example.yts.core.display.DisplayMovies;
+import com.example.yts.core.classes.Movie;
 import com.example.yts.R;
 
 import java.util.ArrayList;

@@ -1,4 +1,6 @@
-package com.example.yts;
+package com.example.yts.core.fetcher;
+
+import com.example.yts.core.classes.Movie;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

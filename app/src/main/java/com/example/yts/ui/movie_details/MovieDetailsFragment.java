@@ -1,4 +1,4 @@
-package com.example.yts.ui;
+package com.example.yts.ui.movie_details;
 
 import android.app.Activity;
 import android.content.res.Resources;
@@ -15,9 +15,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.yts.DisplayMovies;
-import com.example.yts.Movie;
-import com.example.yts.MovieDetails;
+import com.example.yts.core.classes.Movie;
+import com.example.yts.core.classes.MovieDetails;
 import com.example.yts.R;
 
 public class MovieDetailsFragment extends Fragment {
@@ -36,7 +35,7 @@ public class MovieDetailsFragment extends Fragment {
         Movie movie = (Movie) getArguments().getSerializable("movie");
         Activity activity = getActivity();
         movieDetailsViewModel = new ViewModelProvider(this).get(MovieDetailsViewModel.class);
-        movieDetailsViewModel.fetchMovieDetails(movie.getMovieURL());
+        movieDetailsViewModel.fetchMovieDetails(movie.getMovieTitle(), movie.getMovieURL());
         movieDetailsViewModel.getMovieDetails().observe(getViewLifecycleOwner(), new Observer<MovieDetails>() {
             @Override
             //display movie details and movie poster

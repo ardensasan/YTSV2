@@ -1,4 +1,4 @@
-package com.example.yts;
+package com.example.yts.core.display;
 
 import android.app.Activity;
 import android.view.KeyEvent;
@@ -8,6 +8,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.example.yts.R;
 
 public class DisplayPagination {
     public void display(Integer currentPage, Integer totalPages, LinearLayout linearLayout, Activity activity){

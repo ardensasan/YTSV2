@@ -25,7 +25,7 @@
 
     <fragment
         android:id="@+id/navigation_movie_details"
-        android:name="com.example.yts.ui.MovieDetailsFragment"
+        android:name="com.example.yts.ui.movie_details.MovieDetailsFragment"
         android:label="@string/title_movie_details"
         tools:layout="@layout/fragment_downloads" />
 </navigation>

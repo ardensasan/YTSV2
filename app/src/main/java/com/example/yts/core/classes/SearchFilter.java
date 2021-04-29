@@ -1,4 +1,4 @@
-package com.example.yts;
+package com.example.yts.core.classes;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;

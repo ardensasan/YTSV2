@@ -1,22 +1,10 @@
-package com.example.yts.ui;
+package com.example.yts.ui.movie_details;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.yts.Movie;
-import com.example.yts.MovieDetails;
-import com.example.yts.MovieFetcher;
-import com.example.yts.SearchFilter;
-import com.example.yts.SearchFilterFetcher;
-
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import java.io.IOException;
-import java.util.ArrayList;
+import com.example.yts.core.classes.MovieDetails;
 
 public class MovieDetailsViewModel extends ViewModel {
     private MutableLiveData<MovieDetails> movieDetails;
@@ -30,15 +18,15 @@ public class MovieDetailsViewModel extends ViewModel {
         return movieDetails;
     }
 
-    public void fetchMovieDetails(String movieURL){
-        mDetails = new MovieDetails();
+    public void fetchMovieDetails(String movieTitle, String movieURL){
+        mDetails = new MovieDetails(movieTitle);
         mDetails.fetchMovieDetails(movieURL);
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 while(!mDetails.getIsDoneFetching()){
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(100);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

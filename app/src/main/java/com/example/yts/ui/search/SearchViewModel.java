@@ -4,15 +4,10 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.yts.Movie;
-import com.example.yts.MovieFetcher;
-import com.example.yts.SearchFilter;
-import com.example.yts.SearchFilterFetcher;
-
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import com.example.yts.core.classes.Movie;
+import com.example.yts.core.fetcher.MovieFetcher;
+import com.example.yts.core.classes.SearchFilter;
+import com.example.yts.core.fetcher.SearchFilterFetcher;
 
 import java.io.IOException;
 import java.util.ArrayList;

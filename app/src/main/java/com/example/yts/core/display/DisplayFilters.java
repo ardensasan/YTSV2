@@ -1,10 +1,12 @@
-package com.example.yts;
+package com.example.yts.core.display;
 
 import android.app.Activity;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import com.example.yts.core.classes.SearchFilter;
 
 import java.util.ArrayList;
 

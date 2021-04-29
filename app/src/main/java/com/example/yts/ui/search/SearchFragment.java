@@ -1,7 +1,6 @@
 package com.example.yts.ui.search;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +12,12 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.yts.DisplayFilters;
-import com.example.yts.DisplayMovies;
-import com.example.yts.DisplayPagination;
-import com.example.yts.Movie;
+import com.example.yts.core.display.DisplayFilters;
+import com.example.yts.core.display.DisplayMovies;
+import com.example.yts.core.display.DisplayPagination;
+import com.example.yts.core.classes.Movie;
 import com.example.yts.R;
-import com.example.yts.SearchFilter;
+import com.example.yts.core.classes.SearchFilter;
 
 import java.io.IOException;
 import java.util.ArrayList;
