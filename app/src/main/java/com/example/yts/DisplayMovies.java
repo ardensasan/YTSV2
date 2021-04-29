@@ -21,6 +21,7 @@ import android.widget.TextView;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
@@ -91,42 +92,17 @@ public class DisplayMovies {
             imageButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //TODO display movie details
+                    //send movie class as parameters to movie details fragment
                     Bundle bundle = new Bundle();
-                    bundle.putString("movie", "yawa");
+                    bundle.putSerializable("movie", movie);
                     NavController navController = Navigation.findNavController(activity,R.id.nav_host_fragment);
                     navController.navigate(R.id.navigation_movie_details,bundle);
-                    Log.d("Movie Title", movie.getMovieTitle());
                 }
             });
             ll.addView(imageButton);
 
-            //display movie posters
-            Thread thread = new Thread()
-            {
-                @Override
-                public void run() {
-                    int counter = 0;
-                    while(!movie.getIsDoneLoading()) {
-                        try {
-                            counter++;
-                            Thread.sleep(100);
-                            if(counter > 100){
-                                break;
-                            }
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    ((Activity)activity).runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            imageButton.setImageBitmap(movie.getMoviePoster());
-                        }
-                    });
-                }
-            };
-            thread.start();
+            //display movie poster
+            movie.displayMoviePoster(imageButton,activity);
 
             // add movie title to layout
             TextView tv = new TextView(activity);

@@ -61,7 +61,6 @@ public class MovieFetcher {
                         String movieURL = element.getElementsByTag("a").attr("href");
                         String movieTitle = element.getElementsByClass("browse-movie-title").text();
                         String movieYear = element.getElementsByClass("browse-movie-year").text();
-
                         Movie movie = new Movie(moviePosterURL, movieURL, movieTitle, movieYear);
                         movies.add(movie);
                     }
