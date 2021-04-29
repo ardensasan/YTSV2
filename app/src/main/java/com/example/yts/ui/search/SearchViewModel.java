@@ -20,8 +20,8 @@ import java.util.ArrayList;
 public class SearchViewModel extends ViewModel {
     private MutableLiveData<ArrayList<Movie>> movieList;
     private MutableLiveData<ArrayList<SearchFilter>> searchFilters;
-    MovieFetcher movieFetcher;
-    SearchFilterFetcher searchFilterFetcher;
+    private MovieFetcher movieFetcher;
+    private SearchFilterFetcher searchFilterFetcher;
 
     public SearchViewModel() {
         movieList = new MutableLiveData<>();

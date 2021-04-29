@@ -22,19 +22,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class MovieDetails {
-    private Activity activity;
     private String movieType = null;
     private String movieSynopsis = null;
     private ArrayList<String> movieRatingImages = new ArrayList<>();
     private ArrayList<String> movieRatings = new ArrayList<>();
     private ArrayList<String> movieQuality = new ArrayList<>();
     private ArrayList<String> magnetLinks = new ArrayList<>();
+    private boolean isDoneFetching = false;
 
-    public MovieDetails(Activity activity){
-        this.activity = activity;
-        return;
-    }
-    public void fetchMovieDetails(String movieURL,LinearLayout llv_movie_details, LinearLayout llh_movie_details){
+    public void fetchMovieDetails(String movieURL){
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -91,22 +87,27 @@ public class MovieDetails {
                     for(Element element:elements){
                         magnetLinks.add(element.attr("href"));
                     }
+                    isDoneFetching = true;
                 } catch (IOException e) {
                     builder.append("Error : ").append(e.getMessage()).append("\n");
                 }
 
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        displayMovieDetails(llv_movie_details, llh_movie_details);
-                    }
-                });
+//                activity.runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        displayMovieDetails(llv_movie_details, llh_movie_details);
+//                    }
+//                });
             }
         }).start();
         return;
     }
 
-    private void displayMovieDetails(LinearLayout llv_movie_details, LinearLayout llh_movie_details){
+    public boolean getIsDoneFetching(){
+        return isDoneFetching;
+    }
+
+    public void displayMovieDetails(LinearLayout llv_movie_details, LinearLayout llh_movie_details, Activity activity){
         LinearLayout linearLayout = new LinearLayout(activity);
         linearLayout.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -136,11 +137,11 @@ public class MovieDetails {
         textView.setLayoutParams(params);
         params.setMargins(10,10,0,20);
         llv_movie_details.addView(textView);
-        displayDownloadLinks(llv_movie_details);
+        displayDownloadLinks(llv_movie_details, activity);
         return;
     }
 
-    private void displayDownloadLinks(LinearLayout llv_movie_details){
+    private void displayDownloadLinks(LinearLayout llv_movie_details, Activity activity){
         //add layout element
         LinearLayout linearLayout;
         TextView textView;
