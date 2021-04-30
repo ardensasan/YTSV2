@@ -21,7 +21,7 @@ import com.example.yts.R;
 
 public class MovieDetailsFragment extends Fragment {
 
-    private MovieDetailsViewModel movieDetailsViewModel;
+    private static MovieDetailsViewModel movieDetailsViewModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -32,8 +32,8 @@ public class MovieDetailsFragment extends Fragment {
         LinearLayout llv_movie_details = root.findViewById(R.id.llv_movie_details);
         LinearLayout llh_movie_details = root.findViewById(R.id.llh_movie_details);
         //get movie class parameter
-        Movie movie = (Movie) getArguments().getSerializable("movie");
         Activity activity = getActivity();
+        Movie movie = (Movie) getArguments().getSerializable("movie");
         movieDetailsViewModel = new ViewModelProvider(this).get(MovieDetailsViewModel.class);
         movieDetailsViewModel.fetchMovieDetails(movie.getMovieTitle(), movie.getMovieURL());
         movieDetailsViewModel.getMovieDetails().observe(getViewLifecycleOwner(), new Observer<MovieDetails>() {
@@ -41,14 +41,13 @@ public class MovieDetailsFragment extends Fragment {
             //display movie details and movie poster
             public void onChanged(MovieDetails movieDetails) {
                 textView.setText("");
-                ImageView imageView = new ImageView(activity);
+                ImageView imageView = root.findViewById(R.id.iv_movie_poster);
                 movie.displayMoviePoster(imageView,activity);
                 int imageWidth = (Resources.getSystem().getDisplayMetrics().widthPixels / 3) - 20;
                 int imageHeight = imageWidth * activity.getResources().getInteger(R.integer.movie_poster_height) / activity.getResources().getInteger(R.integer.movie_poster_width);
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(imageWidth, imageHeight);
                 imageView.setLayoutParams(params);
                 imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-                llh_movie_details.addView(imageView);
                 movieDetails.displayMovieDetails(llv_movie_details, llh_movie_details, activity);
             }
         });

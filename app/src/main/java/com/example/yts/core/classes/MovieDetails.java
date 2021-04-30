@@ -7,6 +7,8 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +18,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+
 import com.example.yts.R;
+import com.example.yts.torrent.Torrent;
+import com.example.yts.torrent.TorrentDownloadsList;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -26,6 +33,7 @@ import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -41,6 +49,7 @@ public class MovieDetails {
     private ArrayList<String> movieQuality = new ArrayList<>();
     private ArrayList<String> magnetLinks = new ArrayList<>();
     private boolean isDoneFetching = false;
+    private boolean isDisplayed = false;
 
     public MovieDetails(String movieTitle){
         this.movieTitle = movieTitle;
@@ -106,13 +115,6 @@ public class MovieDetails {
                 } catch (IOException e) {
                     builder.append("Error : ").append(e.getMessage()).append("\n");
                 }
-
-//                activity.runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        displayMovieDetails(llv_movie_details, llh_movie_details);
-//                    }
-//                });
             }
         }).start();
         return;
@@ -123,59 +125,66 @@ public class MovieDetails {
     }
 
     public void displayMovieDetails(LinearLayout llv_movie_details, LinearLayout llh_movie_details, Activity activity){
-        LinearLayout linearLayout = new LinearLayout(activity);
-        linearLayout.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        if(!isDisplayed) {
+            LinearLayout linearLayout = new LinearLayout(activity);
+            linearLayout.setOrientation(LinearLayout.VERTICAL);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
 
-        //display movie title
-        TextView textView = new TextView(activity);
-        textView.setText(movieType);
-        textView.setTypeface(Typeface.DEFAULT_BOLD);
-        textView.setGravity(Gravity.LEFT);
-        params.setMargins(10,10,0,0);
-        textView.setLayoutParams(params);
-        linearLayout.addView(textView);
+            //display movie title
+            TextView textView = new TextView(activity);
+            textView.setText(movieType);
+            textView.setTypeface(Typeface.DEFAULT_BOLD);
+            textView.setGravity(Gravity.LEFT);
+            params.setMargins(10,10,0,0);
+            textView.setLayoutParams(params);
+            linearLayout.addView(textView);
 
 
-        //display ratings
-        for (int i = 1; i < movieRatings.size(); i++) {
-            LinearLayout ll = new LinearLayout(activity);
-            ll.setOrientation(LinearLayout.HORIZONTAL);
+            //display ratings
+            for (int i = 1; i < movieRatings.size(); i++) {
+                LinearLayout ll = new LinearLayout(activity);
+                ll.setOrientation(LinearLayout.HORIZONTAL);
 
-            //rating logo
-            ImageView imageView = new ImageView(activity);
-            if(i == 1){
-                imageView.setImageResource(R.drawable.ic_movie_likes_24dp);
-            }else if(i == movieRatings.size()-1){
-                imageView.setImageResource(R.drawable.ic_logo_imdb);
-            }else{
-                loadImage(activity, imageView, movieRatingImages.get(i-1));
+                //rating logo
+                ImageView imageView = new ImageView(activity);
+                if(i == 1){
+                    imageView.setImageResource(R.drawable.ic_movie_likes_24dp);
+                }else if(i == movieRatings.size()-1){
+                    imageView.setImageResource(R.drawable.ic_logo_imdb);
+                }else{
+                    loadImage(activity, imageView, movieRatingImages.get(i-1));
+                }
+                params = new LinearLayout.LayoutParams(50,50);
+                params.setMargins(10,0,10,0);
+                imageView.setLayoutParams(params);
+                ll.addView(imageView);
+
+                //rating text
+                textView = new TextView(activity);
+                textView.setText(movieRatings.get(i-1));
+                ll.addView(textView);
+
+                linearLayout.addView(ll);
             }
-            params = new LinearLayout.LayoutParams(50,50);
-            params.setMargins(10,0,10,0);
-            imageView.setLayoutParams(params);
-            ll.addView(imageView);
+            //add image to image views
+            for (int i = 1; i < movieRatings.size(); i++) {
+            }
+            llh_movie_details.addView(linearLayout);
 
-            //rating text
+            params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+            params.setMargins(10,10,0,20);
             textView = new TextView(activity);
-            textView.setText(movieRatings.get(i-1));
-            ll.addView(textView);
-
-            linearLayout.addView(ll);
+            textView.setText(movieSynopsis);
+            textView.setLayoutParams(params);
+            llv_movie_details.addView(textView);
+            displayDownloadLinks(llv_movie_details, activity);
+            isDisplayed = true;
         }
-        //add image to image views
-        for (int i = 1; i < movieRatings.size(); i++) {
-        }
-        llh_movie_details.addView(linearLayout);
-
-        params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.setMargins(10,10,0,20);
-        textView = new TextView(activity);
-        textView.setText(movieSynopsis);
-        textView.setLayoutParams(params);
-        llv_movie_details.addView(textView);
-        displayDownloadLinks(llv_movie_details, activity);
         return;
+    }
+
+    public boolean getIsDisplayed(){
+        return isDisplayed;
     }
 
     private void displayDownloadLinks(LinearLayout llv_movie_details, Activity activity){
@@ -200,12 +209,14 @@ public class MovieDetails {
             button = new Button(activity);
             button.setText("DOWNLOAD");
             button.setGravity(Gravity.CENTER);
+            int finalI = i;
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Toast.makeText(activity, movieTitle+" added to downloads", Toast.LENGTH_SHORT).show();
-
-                    //TODO download torrent magnet link
+                    //add torrent to global torrent download list
+                    Torrent torrent = new Torrent(magnetLinks.get(finalI));
+                    ((TorrentDownloadsList) activity.getApplication()).addTorrentToList(torrent);
                 }
             });
             linearLayout.addView(button);

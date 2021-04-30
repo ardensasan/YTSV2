@@ -1,37 +1,28 @@
 package com.example.yts.ui.downloads;
 
+import android.app.Activity;
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.yts.torrent.Torrent;
+import com.example.yts.torrent.TorrentDownloadsList;
+
+import java.util.ArrayList;
+
 public class DownloadsViewModel extends ViewModel {
-
-    private MutableLiveData<String> mText;
-    private int time = 0;
-
+    private MutableLiveData<ArrayList<Torrent>> torrents;
     public DownloadsViewModel() {
-        mText = new MutableLiveData<>();
+        torrents = new MutableLiveData<>();
     }
 
-    public LiveData<String> getText() {
-        return mText;
+    public LiveData<ArrayList<Torrent>> getTorrentDownloads() {
+        return torrents;
     }
 
-    public void startTimer(){
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while(time < 100){
-                    try {
-                        Thread.sleep(1000);
-                        time++;
-                        mText.postValue("yawa"+time);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }).start();
+    public void setTorrents(Activity activity) {
+        torrents.postValue(((TorrentDownloadsList) activity.getApplication()).getTorrentDownloadsList());
     }
 }
