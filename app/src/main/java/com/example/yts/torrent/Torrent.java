@@ -19,6 +19,10 @@ public class Torrent extends Thread implements Serializable {
     private String magnetURI;
     private SessionManager s;
     private TorrentInfo torrentInfo = null;
+    private TorrentHandle torrentHandle = null;
+    private String torrentName = "Getting metadata...";
+    private boolean isPaused = false; //torrent is paused
+    private boolean isSeeding = false; //torrent is in seed state
 
     public Torrent(String magnetURI){
         this.magnetURI = magnetURI;
@@ -42,7 +46,7 @@ public class Torrent extends Thread implements Serializable {
         }).start();
     }
 
-    private void waitForNodesInDHT(SessionManager s) throws InterruptedException {
+    private boolean waitForNodesInDHT(SessionManager s) throws InterruptedException {
         CountDownLatch signal = new CountDownLatch(1);
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -60,57 +64,9 @@ public class Torrent extends Thread implements Serializable {
         log("Waiting for nodes in DHT (10 seconds)...");
         boolean r = signal.await(10, TimeUnit.SECONDS);
         if (!r) {
-            log("DHT bootstrap timeout retrying");
-            waitForNodesInDHT(s);
+            log("DHT bootstrap timeout");
         }
-        return;
-    }
-
-    public int getProgress(){
-        if(torrentInfo !=null){
-            return (int) (s.find(torrentInfo.infoHash()).status().progress() * 100);
-        }else{
-            return 0;
-        }
-    }
-
-    public String getTotalSize(){
-        if(torrentInfo !=null) {
-            return String.valueOf((float)s.find(torrentInfo.infoHash()).status().total()/1000);
-        }else {
-            return "";
-        }
-    }
-
-    public String getTotalDone(){
-        if(torrentInfo !=null) {
-            return String.valueOf((float)s.find(torrentInfo.infoHash()).status().totalDone()/1000);
-        }else{
-            return "";
-        }
-    }
-
-    public String getTorrentState(){
-        if(torrentInfo !=null) {
-            return String.valueOf(s.find(torrentInfo.infoHash()).status().state());
-        }else{
-            return "";
-        }
-    }
-
-    public String getDownloadSpeed(){
-        if(torrentInfo !=null) {
-            return String.valueOf((float)s.find(torrentInfo.infoHash()).status().downloadRate()/1000);
-        }else{
-            return "";
-        }
-    }
-    public String getTorrentName(){
-        if(torrentInfo !=null) {
-            return torrentInfo.name();
-        }else{
-            return "Getting File Name";
-        }
+        return r;
     }
 
     private static void log(String s) {
@@ -137,7 +93,7 @@ public class Torrent extends Thread implements Serializable {
                 AlertType type = alert.type();
                 switch (type) {
                     case ADD_TORRENT:
-                        //((AddTorrentAlert) alert).handle().setFlags(TorrentFlags.SEQUENTIAL_DOWNLOAD);
+                        torrentHandle = ((AddTorrentAlert) alert).handle();
                         ((AddTorrentAlert) alert).handle().resume();
                         ((AddTorrentAlert) alert).handle();
                         break;
@@ -155,6 +111,7 @@ public class Torrent extends Thread implements Serializable {
                     case TORRENT_FINISHED:
                         grade = 0;
                         ((TorrentFinishedAlert) alert).handle().pause();
+                        isSeeding = true;
                         log("TORRENT_FINISHED");
                         break;
                     case TORRENT_ERROR:
@@ -192,24 +149,150 @@ public class Torrent extends Thread implements Serializable {
         if (s.isRunning() != true)
             s.start();
         if (link.startsWith("magnet:?")) {
-            waitForNodesInDHT(s);
-            byte[] data = s.fetchMagnet(link, 30);
-            TorrentInfo ti = TorrentInfo.bdecode(data);
-            torrentInfo = ti;
-            log(Entry.bdecode(data).toString());
-            log("is valid ? =" + ti.isValid());
-            s.download(ti, saveDir);
-            log("torrent added with name = " + ti.name());
-            //storrent.addTh(s.find(ti.infoHash()), name);
-            log(s.find(ti.infoHash()).isValid() + " isvalid");
-            log("torrent added to session");
-            //this.videoname = ti.name();
-            int i = 0;
-            while (i < 10){
-                TimeUnit.SECONDS.sleep(1);
-                log(s.find(ti.infoHash()).status().state() + " state");
-                log(s.find(ti.infoHash()).status().progress() * 100 + " progress");
+            boolean bool = waitForNodesInDHT(s);
+            if(!bool){
+                torrentName = "DHT Error Please retry";
+                return;
+            }else{
+                byte[] data = s.fetchMagnet(link, 30);
+                if(TorrentInfo.bdecode(data) == null){
+                    return;
+                }
+                TorrentInfo ti = TorrentInfo.bdecode(data);
+                torrentInfo = ti;
+                torrentName = ti.name();
+                log(Entry.bdecode(data).toString());
+                log("is valid ? =" + ti.isValid());
+                s.download(ti, saveDir);
+                log("torrent added with name = " + ti.name());
+                log(s.find(ti.infoHash()).isValid() + " isvalid");
+                torrentHandle = s.find(ti.infoHash());
+                log("torrent added to session");
+                int i = 0;
+                while (i < 10){
+                    TimeUnit.SECONDS.sleep(1);
+                    log(s.find(ti.infoHash()).status().state() + " state");
+                    log(s.find(ti.infoHash()).status().progress() * 100 + " progress");
+                }
             }
         }
+    }
+
+
+    public int getProgress(){
+        if(torrentInfo !=null){
+            return (int) (s.find(torrentInfo.infoHash()).status().progress() * 100);
+        }else{
+            return 0;
+        }
+    }
+
+    public String getTotalDownload(){
+        if(torrentInfo !=null) {
+            float totalDone = s.find(torrentInfo.infoHash()).status().totalDone()/1000;
+            String sTotalDone = "";
+            if(totalDone >= 1000000){
+                totalDone /= 1000000;
+                sTotalDone = (Math.round(totalDone * 100.0) / 100.0) + " GB";
+            }else if(totalDone >= 1000){
+                totalDone /= 1000;
+                sTotalDone = (Math.round(totalDone * 100.0) / 100.0) + " MB";
+            }else{
+                sTotalDone = totalDone + " KB";
+            }
+
+            float totalSize = s.find(torrentInfo.infoHash()).status().total()/1000;
+            String sTotalSize = "";
+            if(totalSize >= 1000000){
+                totalSize /= 1000000;
+                sTotalSize = (Math.round(totalSize * 100.0) / 100.0) + " GB";
+            }else if(totalSize >= 1000){
+                totalSize /= 1000;
+                sTotalSize = (Math.round(totalSize * 100.0) / 100.0) + " MB";
+            }else{
+                sTotalSize = totalSize + " KB";
+            }
+            return sTotalDone +" / "+ sTotalSize;
+
+        }else {
+            return "";
+        }
+    }
+
+    public String getTorrentState(){
+        if(torrentInfo !=null) {
+            if(isPaused){
+                return "PAUSED";
+            }else{
+                return String.valueOf(s.find(torrentInfo.infoHash()).status().state());
+            }
+        }else{
+            return "";
+        }
+    }
+
+    //get speed based on torrent state
+    //seeding = upload speed
+    //download = download speed
+    public String getSpeed(){
+        if(torrentInfo !=null) {
+            if(isPaused){
+                return "--";
+            }else {
+                if(isSeeding){
+                    float uploadSpeed = s.find(torrentInfo.infoHash()).status().uploadRate()/1000;
+                    String sUploadSpeed = "";
+                    if(uploadSpeed >= 1000000){
+                        uploadSpeed /= 1000000;
+                        sUploadSpeed = (Math.round(uploadSpeed * 100.0) / 100.0) + " GB/s";
+                    }else if(uploadSpeed >= 1000){
+                        uploadSpeed /= 1000;
+                        sUploadSpeed = (Math.round(uploadSpeed * 100.0) / 100.0) + " MB/s";
+                    }else{
+                        sUploadSpeed = uploadSpeed + " KB/s";
+                    }
+                    return sUploadSpeed;
+                }else{
+                    float downloadSpeed = s.find(torrentInfo.infoHash()).status().downloadRate()/1000;
+                    String sDownloadSpeed = "";
+                    if(downloadSpeed >= 1000000){
+                        downloadSpeed /= 1000000;
+                        sDownloadSpeed = (Math.round(downloadSpeed * 100.0) / 100.0) + " GB/s";
+                    }else if(downloadSpeed >= 1000){
+                        downloadSpeed /= 1000;
+                        sDownloadSpeed = (Math.round(downloadSpeed * 100.0) / 100.0) + " MB/s";
+                    }else{
+                        sDownloadSpeed = downloadSpeed + " KB/s";
+                    }
+                    return sDownloadSpeed;
+                }
+            }
+        }else{
+            return "";
+        }
+    }
+
+    public String getTorrentName(){
+        if(torrentInfo != null){
+            return torrentName;
+        }else{
+            return "";
+        }
+    }
+
+    public void pauseTorrent(){
+        if(torrentHandle != null){
+            torrentHandle.pause();
+            isPaused = true;
+        }
+    }
+
+    public boolean getIsPaused(){
+        return isPaused;
+    }
+
+    public void resumeTorrent(){
+        torrentHandle.resume();
+        isPaused = false;
     }
 }

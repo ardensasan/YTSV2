@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -41,13 +42,13 @@ public class DownloadsFragment extends Fragment {
         }
         isOnFragment = true;
         View root = inflater.inflate(R.layout.fragment_downloads, container, false);
+        TextView textView = root.findViewById(R.id.tv_downloads);
+        textView.setText("Loading Downloads..");
         recyclerView = root.findViewById(R.id.rv_downloads);
-
         //update downloads list while on fragment
         new Thread(new Runnable() {
             @Override
             public void run() {
-                int i = 0;
                 while(isOnFragment){
                     try {
                         Thread.sleep(1000);
@@ -63,6 +64,7 @@ public class DownloadsFragment extends Fragment {
             @Override
             public void onChanged(ArrayList<Torrent> torrents) {
                 //get list of downloads and display in recycler view
+                textView.setText("");
                 torrentDownloadsList = ((TorrentDownloadsList) activity.getApplication()).getTorrentDownloadsList();
                 DownloadAdapter downloadAdapter = new DownloadAdapter(torrentDownloadsList);
                 recyclerView.setAdapter(downloadAdapter);

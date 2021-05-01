@@ -213,10 +213,8 @@ public class MovieDetails {
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(activity, movieTitle+" added to downloads", Toast.LENGTH_SHORT).show();
-                    //add torrent to global torrent download list
-                    Torrent torrent = new Torrent(magnetLinks.get(finalI));
-                    ((TorrentDownloadsList) activity.getApplication()).addTorrentToList(torrent);
+                    //check if torrent already present
+                    ((TorrentDownloadsList) activity.getApplication()).checkTorrentAlreadyAdded(magnetLinks.get(finalI), activity);
                 }
             });
             linearLayout.addView(button);

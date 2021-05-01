@@ -1,20 +1,22 @@
 package com.example.yts.torrent;
 
+import android.app.Activity;
 import android.app.Application;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
 public class TorrentDownloadsList extends Application {
-    private ArrayList<Torrent> torrentDownloadsList = new ArrayList<>();
+    private static ArrayList<Torrent> torrentDownloadsList = new ArrayList<>();
 
     public ArrayList<Torrent> getTorrentDownloadsList(){
         return torrentDownloadsList;
     }
 
     public void addTorrentToList(Torrent torrent){
-        torrent.downloadStart();
         torrentDownloadsList.add(torrent);
+        torrent.downloadStart();
     }
 
     public Torrent getTorrent(Integer position){
@@ -23,5 +25,24 @@ public class TorrentDownloadsList extends Application {
 
     public Integer getSize(){
         return torrentDownloadsList.size();
+    }
+
+    //check if torrent is already added
+    public void checkTorrentAlreadyAdded(String magnetURI, Activity activity){
+        boolean isAlreadyAdded = false;
+        String torrentName = "";
+        for(Torrent torrent:torrentDownloadsList){
+            if(torrent.getMagnetURI() == magnetURI){
+                isAlreadyAdded = true;
+                torrentName = torrent.getTorrentName();
+            }
+        }
+        if(!isAlreadyAdded){
+            Torrent torrent = new Torrent(magnetURI);
+            ((TorrentDownloadsList) activity.getApplication()).addTorrentToList(torrent);
+            Toast.makeText(activity, torrent.getTorrentName() +" added to downloads", Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(activity, torrentName +" already added", Toast.LENGTH_SHORT).show();
+        }
     }
 }
