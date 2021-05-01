@@ -22,7 +22,9 @@ public class Torrent extends Thread implements Serializable {
     private TorrentHandle torrentHandle = null;
     private String torrentName = "Getting metadata...";
     private boolean isPaused = false; //torrent is paused
-    private boolean isSeeding = false; //torrent is in seed state
+    private boolean isTimedOut = false;
+    private boolean isSelected = false; //torrent is select in recyclerview
+    private boolean isRemoved = false;
 
     public Torrent(String magnetURI){
         this.magnetURI = magnetURI;
@@ -33,17 +35,19 @@ public class Torrent extends Thread implements Serializable {
     }
 
     public void downloadStart(){
-        new Thread(new Runnable() {
+        torrentName = "Getting metadata...";
+        Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 s = new SessionManager();
                 try {
                     startdl(magnetURI, s);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    return;
                 }
             }
-        }).start();
+        });
+        thread.start();
     }
 
     private boolean waitForNodesInDHT(SessionManager s) throws InterruptedException {
@@ -82,7 +86,6 @@ public class Torrent extends Thread implements Serializable {
         final SessionManager s = sm;//storrent.getSessionManager();
         AlertListener l = new AlertListener() {
             private int grade = 0;
-
             @Override
             public int[] types() {
                 return null;
@@ -111,7 +114,6 @@ public class Torrent extends Thread implements Serializable {
                     case TORRENT_FINISHED:
                         grade = 0;
                         ((TorrentFinishedAlert) alert).handle().pause();
-                        isSeeding = true;
                         log("TORRENT_FINISHED");
                         break;
                     case TORRENT_ERROR:
@@ -151,11 +153,16 @@ public class Torrent extends Thread implements Serializable {
         if (link.startsWith("magnet:?")) {
             boolean bool = waitForNodesInDHT(s);
             if(!bool){
-                torrentName = "DHT Error Please retry";
+                torrentName = "DHT bootstrap timeout Please retry download";
+                isTimedOut = true;
+                isPaused = true;
                 return;
             }else{
                 byte[] data = s.fetchMagnet(link, 30);
-                if(TorrentInfo.bdecode(data) == null){
+                if(data == null){
+                    torrentName = "Download timeout please retry";
+                    isTimedOut = true;
+                    isPaused = true;
                     return;
                 }
                 TorrentInfo ti = TorrentInfo.bdecode(data);
@@ -168,12 +175,6 @@ public class Torrent extends Thread implements Serializable {
                 log(s.find(ti.infoHash()).isValid() + " isvalid");
                 torrentHandle = s.find(ti.infoHash());
                 log("torrent added to session");
-                int i = 0;
-                while (i < 10){
-                    TimeUnit.SECONDS.sleep(1);
-                    log(s.find(ti.infoHash()).status().state() + " state");
-                    log(s.find(ti.infoHash()).status().progress() * 100 + " progress");
-                }
             }
         }
     }
@@ -209,7 +210,10 @@ public class Torrent extends Thread implements Serializable {
             }else if(totalSize >= 1000){
                 totalSize /= 1000;
                 sTotalSize = (Math.round(totalSize * 100.0) / 100.0) + " MB";
-            }else{
+            }else if(totalSize == 0){
+                sTotalSize = sTotalDone;
+            }
+            else{
                 sTotalSize = totalSize + " KB";
             }
             return sTotalDone +" / "+ sTotalSize;
@@ -239,7 +243,7 @@ public class Torrent extends Thread implements Serializable {
             if(isPaused){
                 return "--";
             }else {
-                if(isSeeding){
+                if(torrentHandle.status().isSeeding()){
                     float uploadSpeed = s.find(torrentInfo.infoHash()).status().uploadRate()/1000;
                     String sUploadSpeed = "";
                     if(uploadSpeed >= 1000000){
@@ -273,11 +277,7 @@ public class Torrent extends Thread implements Serializable {
     }
 
     public String getTorrentName(){
-        if(torrentInfo != null){
-            return torrentName;
-        }else{
-            return "";
-        }
+        return torrentName;
     }
 
     public void pauseTorrent(){
@@ -292,7 +292,32 @@ public class Torrent extends Thread implements Serializable {
     }
 
     public void resumeTorrent(){
-        torrentHandle.resume();
+        if(isTimedOut){
+            isTimedOut = false;
+            downloadStart();
+        }else{
+            torrentHandle.resume();
+        }
         isPaused = false;
+    }
+
+    public boolean infoLoaded(){
+        if(torrentInfo != null){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    public void setIsSelected(boolean bool){
+        isSelected = true;
+    }
+
+    public boolean getIsSelected(){
+        return isSelected;
+    }
+
+    public void removeTorrent(){
+        s = null;
     }
 }

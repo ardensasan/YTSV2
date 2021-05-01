@@ -40,9 +40,15 @@ public class TorrentDownloadsList extends Application {
         if(!isAlreadyAdded){
             Torrent torrent = new Torrent(magnetURI);
             ((TorrentDownloadsList) activity.getApplication()).addTorrentToList(torrent);
-            Toast.makeText(activity, torrent.getTorrentName() +" added to downloads", Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, "Added to download queue", Toast.LENGTH_SHORT).show();
         }else{
-            Toast.makeText(activity, torrentName +" already added", Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, torrentName +" already in download queue", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    //remove torrent from list
+    public void removeTorrent(Torrent torrent){
+        torrent.removeTorrent();
+        torrentDownloadsList.remove(torrent);
     }
 }

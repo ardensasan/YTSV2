@@ -66,9 +66,9 @@ public class DownloadsFragment extends Fragment {
                 //get list of downloads and display in recycler view
                 textView.setText("");
                 torrentDownloadsList = ((TorrentDownloadsList) activity.getApplication()).getTorrentDownloadsList();
-                DownloadAdapter downloadAdapter = new DownloadAdapter(torrentDownloadsList);
+                DownloadAdapter downloadAdapter = new DownloadAdapter(torrentDownloadsList,getActivity());
                 recyclerView.setAdapter(downloadAdapter);
-                recyclerView.setLayoutManager(new LinearLayoutManager(activity));
+                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             }
         });
         return root;

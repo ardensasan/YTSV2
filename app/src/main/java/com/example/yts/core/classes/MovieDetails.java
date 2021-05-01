@@ -104,8 +104,6 @@ public class MovieDetails {
                         }
                         count++;
                     }
-
-
                     //get magnet links
                     elements = content.getElementsByClass("magnet-download download-torrent magnet");
                     for(Element element:elements){

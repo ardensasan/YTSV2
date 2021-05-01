@@ -1,11 +1,15 @@
 package com.example.yts;
 
+import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -14,15 +18,17 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.yts.torrent.Torrent;
+import com.example.yts.torrent.TorrentDownloadsList;
 
 import java.util.ArrayList;
 
 
-public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.DownloadViewHolder> implements View.OnClickListener{
-    ArrayList<Torrent>  torrentDownloadsList;
-
-    public DownloadAdapter(ArrayList<Torrent> torrentDownloadsList){
+public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.DownloadViewHolder>{
+    private ArrayList<Torrent>  torrentDownloadsList;
+    private Activity activity;
+    public DownloadAdapter(ArrayList<Torrent> torrentDownloadsList, Activity activity){
         this.torrentDownloadsList = torrentDownloadsList;
+        this.activity = activity;
     }
     @NonNull
     @Override
@@ -31,7 +37,6 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         View view = layoutInflater.inflate(R.layout.layout_downloads,parent,false);
         DownloadViewHolder downloadViewHolder = new DownloadViewHolder(view);
-        view.setOnClickListener(this::onClick);
         return downloadViewHolder;
     }
 
@@ -43,8 +48,10 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
         holder.tv_download_state.setText(torrent.getTorrentState());
         holder.tv_total_download.setText(torrent.getTotalDownload());
         holder.tv_total_download_percentage.setText(String.valueOf(torrent.getProgress()) + "%");
-        holder.tv_download_speed.setText(torrent.getDownloadSpeed());
-        if(torrent.getIsPaused()){
+        holder.tv_download_speed.setText(torrent.getSpeed());
+        if(torrent.getIsSelected()){
+            holder.ibtn_download_action.setImageResource(R.drawable.ic_baseline_delete_24);
+        }else if(torrent.getIsPaused()){
             holder.ibtn_download_action.setImageResource(R.drawable.ic_baseline_resume_circle_outline_24);
         }else{
             holder.ibtn_download_action.setImageResource(R.drawable.ic_baseline_pause_circle_outline_24);
@@ -52,13 +59,27 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
         holder.ibtn_download_action.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(torrent.getIsPaused()){
+                if(torrent.getIsSelected()){
+                    ((TorrentDownloadsList) activity.getApplication()).removeTorrent(torrent);
+                }else if(torrent.getIsPaused()){
                     torrent.resumeTorrent();
                 }else{
                     torrent.pauseTorrent();
                 }
             }
         });
+        holder.llh_downloads.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                torrent.setIsSelected(true);
+                return false;
+            }
+        });
+        if(torrent.getIsSelected()){
+            holder.llh_downloads.setBackgroundColor(Color.CYAN);
+        }else{
+            holder.llh_downloads.setBackgroundColor(Color.TRANSPARENT);
+        }
     }
 
     @Override
@@ -66,12 +87,9 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
         return torrentDownloadsList.size();
     }
 
-    @Override
-    public void onClick(View v) {
-        Toast.makeText(v.getContext(),"yawa",Toast.LENGTH_SHORT).show();
-    }
 
     public class DownloadViewHolder extends RecyclerView.ViewHolder{
+        LinearLayout llh_downloads;
         TextView tv_download_name;
         TextView tv_download_speed;
         ProgressBar pb_download_progress;
@@ -81,6 +99,7 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
         ImageButton ibtn_download_action;
         public DownloadViewHolder(@NonNull View itemView) {
             super(itemView);
+            llh_downloads = itemView.findViewById(R.id.llh_downloads);
             tv_download_name = itemView.findViewById(R.id.tv_download_name);
             pb_download_progress = itemView.findViewById(R.id.pb_download_progress);
             tv_download_state = itemView.findViewById(R.id.tv_download_state);
@@ -90,7 +109,6 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
             ibtn_download_action = itemView.findViewById(R.id.ibtn_download_action);
         }
     }
-
 }
 
 
