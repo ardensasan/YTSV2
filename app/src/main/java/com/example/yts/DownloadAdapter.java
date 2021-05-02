@@ -36,9 +36,9 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
         Context context = parent.getContext();
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         View view = layoutInflater.inflate(R.layout.layout_downloads,parent,false);
-        DownloadViewHolder downloadViewHolder = new DownloadViewHolder(view);
-        return downloadViewHolder;
+        return new DownloadViewHolder(view);
     }
+
 
     @Override
     public void onBindViewHolder(@NonNull DownloadViewHolder holder, int position) {
@@ -47,8 +47,15 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
         holder.pb_download_progress.setProgress(torrent.getProgress());
         holder.tv_download_state.setText(torrent.getTorrentState());
         holder.tv_total_download.setText(torrent.getTotalDownload());
-        holder.tv_total_download_percentage.setText(String.valueOf(torrent.getProgress()) + "%");
+        holder.tv_total_download_percentage.setText(torrent.getProgress() + "%");
         holder.tv_download_speed.setText(torrent.getSpeed());
+
+        holder.llh_downloads.setOnLongClickListener(v -> {
+            torrent.setIsSelected(true);
+            ((TorrentDownloadsList) activity.getApplication()).setIsHighlighted(true);
+            return false;
+        });
+
         if(torrent.getIsSelected()){
             holder.ibtn_download_action.setImageResource(R.drawable.ic_baseline_delete_24);
         }else if(torrent.getIsPaused()){
@@ -56,23 +63,14 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
         }else{
             holder.ibtn_download_action.setImageResource(R.drawable.ic_baseline_pause_circle_outline_24);
         }
-        holder.ibtn_download_action.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(torrent.getIsSelected()){
-                    ((TorrentDownloadsList) activity.getApplication()).removeTorrent(torrent);
-                }else if(torrent.getIsPaused()){
-                    torrent.resumeTorrent();
-                }else{
-                    torrent.pauseTorrent();
-                }
-            }
-        });
-        holder.llh_downloads.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                torrent.setIsSelected(true);
-                return false;
+        holder.ibtn_download_action.setOnClickListener(v -> {
+            if(torrent.getIsSelected()){
+                ((TorrentDownloadsList) activity.getApplication()).removeTorrent(torrent);
+                Log.d("", "onClick: Remove");
+            }else if(torrent.getIsPaused()){
+                torrent.resumeTorrent();
+            }else{
+                torrent.pauseTorrent();
             }
         });
         if(torrent.getIsSelected()){

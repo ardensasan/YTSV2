@@ -17,7 +17,7 @@ import com.frostwire.jlibtorrent.alerts.*;
 
 public class Torrent extends Thread implements Serializable {
     private String magnetURI;
-    private SessionManager s;
+    private SessionManager sessionManager = null;
     private TorrentInfo torrentInfo = null;
     private TorrentHandle torrentHandle = null;
     private String torrentName = "Getting metadata...";
@@ -36,15 +36,13 @@ public class Torrent extends Thread implements Serializable {
 
     public void downloadStart(){
         torrentName = "Getting metadata...";
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                s = new SessionManager();
-                try {
-                    startdl(magnetURI, s);
-                } catch (InterruptedException e) {
-                    return;
-                }
+        Thread thread = new Thread(() -> {
+            if(sessionManager == null){
+                sessionManager = new SessionManager();
+            }
+            try {
+                startdl();
+            } catch (InterruptedException e) {
             }
         });
         thread.start();
@@ -77,13 +75,12 @@ public class Torrent extends Thread implements Serializable {
         Log.d("status",s);
     }
 
-    private void startdl(String magnetLink, SessionManager sm) throws InterruptedException {
-        String link = magnetLink;
-        File saveDir = new File(String.valueOf(Environment.getExternalStorageDirectory())+"/Download/");
+    private void startdl() throws InterruptedException {
+        String link = magnetURI;
+        File saveDir = new File(Environment.getExternalStorageDirectory()+"/Download/");
         if (!saveDir.exists()) {
             saveDir.mkdirs();
         }
-        final SessionManager s = sm;//storrent.getSessionManager();
         AlertListener l = new AlertListener() {
             private int grade = 0;
             @Override
@@ -100,81 +97,36 @@ public class Torrent extends Thread implements Serializable {
                         ((AddTorrentAlert) alert).handle().resume();
                         ((AddTorrentAlert) alert).handle();
                         break;
-                    case PIECE_FINISHED:
-                        int progress = (int) (((PieceFinishedAlert) alert).handle().status().progress() * 100);
-                        if (grade < progress / 20) {
-                            int index = (int) (((PieceFinishedAlert) alert).pieceIndex());
-                            log("index: " + index);
-                            grade += 1;
-                            s.downloadRate();
-                            log(progress + " %  downloaded");
-                        }
-                        log("PIECE_FINISHED");
-                        break;
                     case TORRENT_FINISHED:
-                        grade = 0;
                         ((TorrentFinishedAlert) alert).handle().pause();
-                        log("TORRENT_FINISHED");
-                        break;
-                    case TORRENT_ERROR:
-                        log(((TorrentErrorAlert) alert).what());
-                        log("is paused = " + ((TorrentErrorAlert) alert).handle().status());
-                        break;
-                    case BLOCK_FINISHED:
-                        log("HERE: " + ((BlockFinishedAlert) alert).handle().status().progress());
-                        progress = (int) (((BlockFinishedAlert) alert).handle().status().progress() * 100);
-                        if (grade < progress / 20) {
-                            int index = (int) (((BlockFinishedAlert) alert).pieceIndex());
-                            log("index: " + index);
-                            grade += 1;
-                            s.downloadRate();
-                            log(progress + " %  downloaded");
-                        }
-                        log("BLOCK_FINISHED");
-                        break;
-                    case STATE_UPDATE:
-                        log(((StateUpdateAlert) alert).message());
-                        break;
-                    case METADATA_RECEIVED:
-                        log("metadata received");
-                        break;
-                    case DHT_ERROR:
-                        log("dht error");
-                        log(((DhtErrorAlert) alert).message());
                         break;
                     default:
                         break;
                 }
             }
         };
-        s.addListener(l);
-        if (s.isRunning() != true)
-            s.start();
+        sessionManager.addListener(l);
+        if (!sessionManager.isRunning())
+            sessionManager.start();
         if (link.startsWith("magnet:?")) {
-            boolean bool = waitForNodesInDHT(s);
+            boolean bool = waitForNodesInDHT(sessionManager);
             if(!bool){
                 torrentName = "DHT bootstrap timeout Please retry download";
                 isTimedOut = true;
                 isPaused = true;
                 return;
             }else{
-                byte[] data = s.fetchMagnet(link, 30);
+                byte[] data = sessionManager.fetchMagnet(link, 30);
                 if(data == null){
                     torrentName = "Download timeout please retry";
                     isTimedOut = true;
                     isPaused = true;
                     return;
                 }
-                TorrentInfo ti = TorrentInfo.bdecode(data);
-                torrentInfo = ti;
-                torrentName = ti.name();
-                log(Entry.bdecode(data).toString());
-                log("is valid ? =" + ti.isValid());
-                s.download(ti, saveDir);
-                log("torrent added with name = " + ti.name());
-                log(s.find(ti.infoHash()).isValid() + " isvalid");
-                torrentHandle = s.find(ti.infoHash());
-                log("torrent added to session");
+                torrentInfo = TorrentInfo.bdecode(data);
+                sessionManager.download(torrentInfo, saveDir);
+                torrentName = torrentInfo.name();
+                torrentHandle = sessionManager.find(torrentInfo.infoHash());
             }
         }
     }
@@ -182,7 +134,7 @@ public class Torrent extends Thread implements Serializable {
 
     public int getProgress(){
         if(torrentInfo !=null){
-            return (int) (s.find(torrentInfo.infoHash()).status().progress() * 100);
+            return (int) (sessionManager.find(torrentInfo.infoHash()).status().progress() * 100);
         }else{
             return 0;
         }
@@ -190,8 +142,8 @@ public class Torrent extends Thread implements Serializable {
 
     public String getTotalDownload(){
         if(torrentInfo !=null) {
-            float totalDone = s.find(torrentInfo.infoHash()).status().totalDone()/1000;
-            String sTotalDone = "";
+            float totalDone = sessionManager.find(torrentInfo.infoHash()).status().totalDone()/1000;
+            String sTotalDone;
             if(totalDone >= 1000000){
                 totalDone /= 1000000;
                 sTotalDone = (Math.round(totalDone * 100.0) / 100.0) + " GB";
@@ -202,8 +154,8 @@ public class Torrent extends Thread implements Serializable {
                 sTotalDone = totalDone + " KB";
             }
 
-            float totalSize = s.find(torrentInfo.infoHash()).status().total()/1000;
-            String sTotalSize = "";
+            float totalSize = sessionManager.find(torrentInfo.infoHash()).status().total()/1000;
+            String sTotalSize;
             if(totalSize >= 1000000){
                 totalSize /= 1000000;
                 sTotalSize = (Math.round(totalSize * 100.0) / 100.0) + " GB";
@@ -228,7 +180,7 @@ public class Torrent extends Thread implements Serializable {
             if(isPaused){
                 return "PAUSED";
             }else{
-                return String.valueOf(s.find(torrentInfo.infoHash()).status().state());
+                return String.valueOf(sessionManager.find(torrentInfo.infoHash()).status().state());
             }
         }else{
             return "";
@@ -239,13 +191,13 @@ public class Torrent extends Thread implements Serializable {
     //seeding = upload speed
     //download = download speed
     public String getSpeed(){
-        if(torrentInfo !=null) {
+        if(torrentHandle !=null) {
             if(isPaused){
                 return "--";
             }else {
                 if(torrentHandle.status().isSeeding()){
-                    float uploadSpeed = s.find(torrentInfo.infoHash()).status().uploadRate()/1000;
-                    String sUploadSpeed = "";
+                    float uploadSpeed = sessionManager.find(torrentInfo.infoHash()).status().uploadRate()/1000;
+                    String sUploadSpeed ;
                     if(uploadSpeed >= 1000000){
                         uploadSpeed /= 1000000;
                         sUploadSpeed = (Math.round(uploadSpeed * 100.0) / 100.0) + " GB/s";
@@ -257,8 +209,8 @@ public class Torrent extends Thread implements Serializable {
                     }
                     return sUploadSpeed;
                 }else{
-                    float downloadSpeed = s.find(torrentInfo.infoHash()).status().downloadRate()/1000;
-                    String sDownloadSpeed = "";
+                    float downloadSpeed = sessionManager.find(torrentInfo.infoHash()).status().downloadRate()/1000;
+                    String sDownloadSpeed;
                     if(downloadSpeed >= 1000000){
                         downloadSpeed /= 1000000;
                         sDownloadSpeed = (Math.round(downloadSpeed * 100.0) / 100.0) + " GB/s";
@@ -310,7 +262,7 @@ public class Torrent extends Thread implements Serializable {
     }
 
     public void setIsSelected(boolean bool){
-        isSelected = true;
+        isSelected = bool;
     }
 
     public boolean getIsSelected(){
@@ -318,6 +270,6 @@ public class Torrent extends Thread implements Serializable {
     }
 
     public void removeTorrent(){
-        s = null;
+        new Thread(() -> sessionManager.stop()).start();
     }
 }

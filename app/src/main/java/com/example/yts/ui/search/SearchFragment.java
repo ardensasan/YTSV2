@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -28,6 +29,11 @@ public class SearchFragment extends Fragment {
     private DisplayMovies displayMovies;
     private DisplayFilters displayFilters;
     private static DisplayPagination displayPagination;
+    private FragmentManager fragmentManager;
+
+    public SearchFragment(FragmentManager fragmentManager) {
+        this.fragmentManager = fragmentManager;
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -47,24 +53,16 @@ public class SearchFragment extends Fragment {
                 e.printStackTrace();
             }
         }
-        searchViewModel.getMovies().observe(getViewLifecycleOwner(), new Observer<ArrayList<Movie>>() {
-            @Override
-            public void onChanged(ArrayList<Movie> movies) {
-                if (movies.size() > 0) {
-                    textView.setText("");
-                    displayMovies = new DisplayMovies(movies);
-                    displayMovies.display(llv_browse_movies, getActivity(), searchViewModel.getResultNum());
-                    displayPagination.display(2,searchViewModel.getTotalPages(),llh_pagination,getActivity());
-                }
+        searchViewModel.getMovies().observe(getViewLifecycleOwner(), movies -> {
+            if (movies.size() > 0) {
+                textView.setText("");
+                displayMovies = new DisplayMovies(movies);
+                displayMovies.display(llv_browse_movies, getActivity(), searchViewModel.getResultNum(),fragmentManager);
+                displayPagination.display(2,searchViewModel.getTotalPages(),llh_pagination,getActivity());
             }
         });
 
-        searchViewModel.getSearchFilters().observe(getViewLifecycleOwner(), new Observer<ArrayList<SearchFilter>>() {
-            @Override
-            public void onChanged(ArrayList<SearchFilter> searchFilters) {
-                displayFilters = new DisplayFilters(searchFilters, llh_movie_filters, getActivity());
-            }
-        });
+        searchViewModel.getSearchFilters().observe(getViewLifecycleOwner(), searchFilters -> displayFilters = new DisplayFilters(searchFilters, llh_movie_filters, getActivity()));
         return root;
     }
 }

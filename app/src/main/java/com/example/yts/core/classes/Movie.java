@@ -17,7 +17,7 @@ import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
 
 //movie class as serializable for easier data passing from one fragment to another
-public class Movie implements Serializable {
+public class Movie{
     private Bitmap moviePoster = null;
     private boolean isDoneLoading = false;
     private String moviePosterURL;
@@ -46,8 +46,6 @@ public class Movie implements Serializable {
                     InputStream inputStream = connection.getInputStream();
                     moviePoster = BitmapFactory.decodeStream(inputStream);
                     isDoneLoading =true;
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -75,12 +73,7 @@ public class Movie implements Serializable {
                         e.printStackTrace();
                     }
                 }
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        imageButton.setImageBitmap(getMoviePoster());
-                    }
-                });
+                activity.runOnUiThread(() -> imageButton.setImageBitmap(getMoviePoster()));
             }
         };
         thread.start();
@@ -104,12 +97,7 @@ public class Movie implements Serializable {
                         e.printStackTrace();
                     }
                 }
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        imageView.setImageBitmap(getMoviePoster());
-                    }
-                });
+                activity.runOnUiThread(() -> imageView.setImageBitmap(getMoviePoster()));
             }
         };
         thread.start();

@@ -9,12 +9,14 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.yts.core.display.DisplayMovies;
 import com.example.yts.core.classes.Movie;
 import com.example.yts.R;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 
@@ -22,6 +24,11 @@ public class HomeFragment extends Fragment {
 
     private static HomeViewModel homeViewModel = null;
     private DisplayMovies displayMovies;
+    private FragmentManager fragmentManager;
+
+    public HomeFragment(FragmentManager fragmentManager) {
+        this.fragmentManager = fragmentManager;
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -34,27 +41,20 @@ public class HomeFragment extends Fragment {
             homeViewModel.fetchMovies(getString(R.string.yts_website), "popular-downloads", "browse-movie-wrap col-xs-10 col-sm-5");
             homeViewModel.fetchMovies(getString(R.string.yts_website), "div.home-movies", "browse-movie-wrap col-xs-10 col-sm-5");
         }
-        homeViewModel.getPopularMoviesList().observe(getViewLifecycleOwner(), new Observer<ArrayList<Movie>>() {
-            @Override
-            public void onChanged(ArrayList<Movie> movies) {
-                if(movies.size() > 0){
-                    textView.setText("");
-                    displayMovies = new DisplayMovies(movies);
-                    displayMovies.display("Popular Downloads", llv_movies_home,getActivity());
-                }
+        homeViewModel.getPopularMoviesList().observe(getViewLifecycleOwner(), movies -> {
+            if(movies.size() > 0){
+                textView.setText("");
+                displayMovies = new DisplayMovies(movies);
+                displayMovies.display("Popular Downloads", llv_movies_home,getActivity(),fragmentManager);
             }
         });
 
-        homeViewModel.getLatestMoviesList().observe(getViewLifecycleOwner(), new Observer<ArrayList<Movie>>() {
-            @Override
-            public void onChanged(ArrayList<Movie> movies) {
-                if(movies.size() > 0){
-                    displayMovies = new DisplayMovies(movies);
-                    displayMovies.display("Latest Movies", llv_movies_home,getActivity());
-                }
+        homeViewModel.getLatestMoviesList().observe(getViewLifecycleOwner(), movies -> {
+            if(movies.size() > 0){
+                displayMovies = new DisplayMovies(movies);
+                displayMovies.display("Latest Movies", llv_movies_home,getActivity(),fragmentManager);
             }
         });
         return root;
     }
-
 }

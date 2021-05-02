@@ -12,16 +12,17 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 
+import com.example.yts.ui.movie_details.MovieDetailsFragment;
 import com.example.yts.core.classes.Movie;
 import com.example.yts.R;
 
 import java.util.ArrayList;
 
 
-public class DisplayMovies {
+public class DisplayMovies extends AppCompatActivity {
     private ArrayList<Movie> movies;
 
 
@@ -30,11 +31,11 @@ public class DisplayMovies {
     }
 
     //display movies along with header category
-    public void display(String header, LinearLayout linearLayout, Activity activity) {
+    public void display(String header, LinearLayout linearLayout, Activity activity, FragmentManager fragmentManager) {
         TextView textView = new TextView(activity);
         textView.setText(header);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        if(header == "Latest Movies"){
+        if(header.equals("Latest Movies")){
             params.setMargins(10,80,10,10);
         }else{
             params.setMargins(10,0,10,10);
@@ -44,11 +45,11 @@ public class DisplayMovies {
         textView.setTypeface(Typeface.DEFAULT_BOLD);
         textView.setTextSize(20);
         linearLayout.addView(textView);
-        display(linearLayout,activity);
+        display(linearLayout,activity,fragmentManager);
     }
 
 
-    public void display(LinearLayout linearLayout, Activity activity,String resultNum) {
+    public void display(LinearLayout linearLayout, Activity activity,String resultNum,FragmentManager fragmentManager) {
         TextView textView = new TextView(activity);
         textView.setText(resultNum);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -57,10 +58,10 @@ public class DisplayMovies {
         textView.setTypeface(Typeface.DEFAULT_BOLD);
         textView.setTextSize(20);
         linearLayout.addView(textView);
-        display(linearLayout,activity);
+        display(linearLayout,activity,fragmentManager);
     }
 
-    public void display(LinearLayout linearLayout, Activity activity){
+    public void display(LinearLayout linearLayout, Activity activity, FragmentManager fragmentManager){
         LinearLayout ll;
         LinearLayout llh_browse_movies = new LinearLayout(activity);
         int imageWidth = (Resources.getSystem().getDisplayMetrics().widthPixels / 2) - 20;
@@ -84,15 +85,9 @@ public class DisplayMovies {
             imageButton.setScaleType(ImageView.ScaleType.FIT_XY);
 
             //set onclick action
-            imageButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //send movie class as parameters to movie details fragment
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable("movie", movie);
-                    NavController navController = Navigation.findNavController(activity,R.id.nav_host_fragment);
-                    navController.navigate(R.id.navigation_movie_details,bundle);
-                }
+            imageButton.setOnClickListener(v -> {
+                //send movie class as parameters to movie details fragment
+                fragmentManager.beginTransaction().replace(R.id.fl_fragment_container, new MovieDetailsFragment(movie),"movie_details").addToBackStack("movie_details").commit();
             });
             ll.addView(imageButton);
 

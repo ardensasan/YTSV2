@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 public class TorrentDownloadsList extends Application {
     private static ArrayList<Torrent> torrentDownloadsList = new ArrayList<>();
+    private boolean hasHiglightedItem = false;
 
     public ArrayList<Torrent> getTorrentDownloadsList(){
         return torrentDownloadsList;
@@ -32,7 +33,7 @@ public class TorrentDownloadsList extends Application {
         boolean isAlreadyAdded = false;
         String torrentName = "";
         for(Torrent torrent:torrentDownloadsList){
-            if(torrent.getMagnetURI() == magnetURI){
+            if(torrent.getMagnetURI().equals(magnetURI)){
                 isAlreadyAdded = true;
                 torrentName = torrent.getTorrentName();
             }
@@ -50,5 +51,18 @@ public class TorrentDownloadsList extends Application {
     public void removeTorrent(Torrent torrent){
         torrent.removeTorrent();
         torrentDownloadsList.remove(torrent);
+    }
+
+    public boolean getIsHighlighted(){
+        return hasHiglightedItem;
+    }
+
+    public void setIsHighlighted(boolean bool){
+        hasHiglightedItem = bool;
+        if(!bool){
+            for(Torrent torrent: torrentDownloadsList){
+                torrent.setIsSelected(false);
+            }
+        }
     }
 }
