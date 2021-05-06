@@ -52,11 +52,9 @@ public class DisplayMovies extends AppCompatActivity {
     public void display(LinearLayout linearLayout, Activity activity,String resultNum,FragmentManager fragmentManager) {
         TextView textView = new TextView(activity);
         textView.setText(resultNum);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.gravity = Gravity.CENTER_HORIZONTAL;
-        textView.setLayoutParams(params);
         textView.setTypeface(Typeface.DEFAULT_BOLD);
-        textView.setTextSize(20);
+        textView.setTextSize(18);
+        textView.setGravity(Gravity.CENTER_HORIZONTAL);
         linearLayout.addView(textView);
         display(linearLayout,activity,fragmentManager);
     }

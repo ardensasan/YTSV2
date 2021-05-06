@@ -1,10 +1,12 @@
 package com.example.yts.ui.search;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,6 +21,7 @@ import com.example.yts.core.display.DisplayPagination;
 import com.example.yts.core.classes.Movie;
 import com.example.yts.R;
 import com.example.yts.core.classes.SearchFilter;
+import com.example.yts.core.fetcher.SearchFilterFetcher;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,12 +30,23 @@ public class SearchFragment extends Fragment {
 
     private static SearchViewModel searchViewModel = null;
     private DisplayMovies displayMovies;
-    private DisplayFilters displayFilters;
+    private static DisplayFilters displayFilters = null;
     private static DisplayPagination displayPagination;
+    private static SearchFilterFetcher searchFilterFetcher = null;
     private FragmentManager fragmentManager;
+    private static String query = "0";
+    private Integer currentPage = 1;
 
-    public SearchFragment(FragmentManager fragmentManager) {
+    public SearchFragment(FragmentManager fragmentManager, SearchFilterFetcher searchFilterFetcher) {
+        this.searchFilterFetcher = searchFilterFetcher;
         this.fragmentManager = fragmentManager;
+    }
+
+    public SearchFragment(FragmentManager fragmentManager, String query, Integer page){
+        this.fragmentManager = fragmentManager;
+        this.query = query;
+        this.currentPage = page;
+        this.searchViewModel = null;
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -42,27 +56,60 @@ public class SearchFragment extends Fragment {
         LinearLayout llv_browse_movies = root.findViewById(R.id.llv_browse_movies);
         LinearLayout llh_movie_filters = root.findViewById(R.id.llh_movie_filters);
         LinearLayout llh_pagination = root.findViewById(R.id.llh_pagination);
-        textView.setText("Fetching Movie List...");
-        if(searchViewModel == null) {
-            searchViewModel = new ViewModelProvider(this).get(SearchViewModel.class);
-            searchViewModel.fetchMovies(getString(R.string.yts_movies), "browse-movie-wrap col-xs-10 col-sm-4 col-md-5 col-lg-4");
-            displayPagination = new DisplayPagination();
-            try {
-                searchViewModel.fetchSearchFilters(getString(R.string.yts_movies));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        SearchView searchView = root.findViewById(R.id.sv_search_movies);
+        String queryText = "";
+        if(query != "0"){
+            queryText = query;
         }
-        searchViewModel.getMovies().observe(getViewLifecycleOwner(), movies -> {
-            if (movies.size() > 0) {
-                textView.setText("");
-                displayMovies = new DisplayMovies(movies);
-                displayMovies.display(llv_browse_movies, getActivity(), searchViewModel.getResultNum(),fragmentManager);
-                displayPagination.display(2,searchViewModel.getTotalPages(),llh_pagination,getActivity());
+        searchView.setQuery(queryText, false);
+        searchView.clearFocus();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                if(query.isEmpty()){
+                    query = "0";
+                }
+                fragmentManager.beginTransaction().replace(R.id.fl_fragment_container,  new SearchFragment(fragmentManager, query,1), "search").addToBackStack("search").commit();
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
             }
         });
+        textView.setText("Fetching Movie List...");
 
-        searchViewModel.getSearchFilters().observe(getViewLifecycleOwner(), searchFilters -> displayFilters = new DisplayFilters(searchFilters, llh_movie_filters, getActivity()));
+        if(displayFilters == null){
+            displayFilters = new DisplayFilters();
+        }
+
+
+        if(searchViewModel == null) {
+            searchViewModel = new ViewModelProvider(this).get(SearchViewModel.class);
+            StringBuilder url = new StringBuilder();
+            url.append(getString(R.string.yts_movies));
+            Log.d("", "onCreateView: "+searchFilterFetcher.isDefaultFilters());
+            Log.d("", "onCreateView: "+query);
+            if(query.equals("0") && !searchFilterFetcher.isDefaultFilters()){
+                url.append("/").append(query).append(searchFilterFetcher.getCompleteSearchFilterURL());
+            }else if(!query.equals("0")){
+                url.append("/").append(query).append(searchFilterFetcher.getCompleteSearchFilterURL());
+            }
+            if(currentPage != 1){
+                url.append("?page=").append(currentPage);
+            }
+            Log.d("", "onCreateView: "+url);
+            searchViewModel.fetchMovies(String.valueOf(url), "browse-movie-wrap col-xs-10 col-sm-4 col-md-5 col-lg-4");
+            displayPagination = new DisplayPagination();
+        }
+        searchViewModel.getMovies().observe(getViewLifecycleOwner(), movies -> {
+            textView.setText("");
+            displayMovies = new DisplayMovies(movies);
+            displayMovies.display(llv_browse_movies, getActivity(), searchViewModel.getResultNum(),fragmentManager);
+            displayPagination.display(query, currentPage, searchViewModel.getTotalPages(), llh_pagination, getActivity(), fragmentManager);
+            displayFilters.displayFilters(searchFilterFetcher.getSearchFilters(), llh_movie_filters, getActivity());
+        });
         return root;
     }
 }

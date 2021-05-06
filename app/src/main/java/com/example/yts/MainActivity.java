@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 
+import com.example.yts.core.fetcher.SearchFilterFetcher;
 import com.example.yts.torrent.TorrentDownloadsList;
 import com.example.yts.ui.downloads.DownloadsFragment;
 import com.example.yts.ui.home.HomeFragment;
@@ -25,12 +26,14 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private Fragment selectedFragment = new HomeFragment(getSupportFragmentManager());
     private int currentFragment = R.id.navigation_home;
     private BottomNavigationView navView;
+    private SearchFilterFetcher searchFilterFetcher;
     private ArrayList<Integer> fragmentIndex = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +42,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         navView = findViewById(R.id.nav_view);
         navView.setOnNavigationItemSelectedListener(navigationItemSelectedListener);
+        try {
+            searchFilterFetcher = new SearchFilterFetcher(getString(R.string.yts_movies));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         getSupportFragmentManager().beginTransaction().replace(R.id.fl_fragment_container, selectedFragment).commit();
         requestPermission();
     }
@@ -60,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.navigation_search:
                     if(currentFragment != item.getItemId()){
                         currentFragment = item.getItemId();
-                        selectedFragment = new SearchFragment(getSupportFragmentManager());
+                        selectedFragment = new SearchFragment(getSupportFragmentManager(), searchFilterFetcher);
                         fragmentIndex.add(1);
                         fragmentTag = "search";
                     }

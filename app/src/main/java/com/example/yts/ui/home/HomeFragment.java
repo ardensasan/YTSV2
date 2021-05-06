@@ -10,15 +10,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.yts.core.display.DisplayMovies;
-import com.example.yts.core.classes.Movie;
 import com.example.yts.R;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-import java.util.ArrayList;
 
 public class HomeFragment extends Fragment {
 

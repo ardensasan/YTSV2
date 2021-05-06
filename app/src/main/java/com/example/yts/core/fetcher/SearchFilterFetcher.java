@@ -1,5 +1,7 @@
 package com.example.yts.core.fetcher;
 
+import android.util.Log;
+
 import com.example.yts.core.classes.SearchFilter;
 
 import org.jsoup.Jsoup;
@@ -13,7 +15,7 @@ import java.util.ArrayList;
 public class SearchFilterFetcher {
     private ArrayList<SearchFilter> searchFilters = new ArrayList<>();
     private boolean isDoneFetching = false;
-
+    private String[] filterDefaults = {"all", "all", "0", "latest", "0", "all"};
     public SearchFilterFetcher(String url) throws IOException {
         new Thread(new Runnable() {
             @Override
@@ -35,16 +37,16 @@ public class SearchFilterFetcher {
                     searchFilter = new SearchFilter("Rating", content, "rating");
                     searchFilters.add(searchFilter);
 
+                    //order by filter
+                    searchFilter = new SearchFilter("Order by", content, "order_by");
+                    searchFilters.add(searchFilter);
+
                     //year filter
                     searchFilter = new SearchFilter("Year", content, "year");
                     searchFilters.add(searchFilter);
 
                     //language filter
                     searchFilter = new SearchFilter("Language", content, "language");
-                    searchFilters.add(searchFilter);
-
-                    //order by filter
-                    searchFilter = new SearchFilter("Order by", content, "order_by");
                     searchFilters.add(searchFilter);
 
                     isDoneFetching = true;
@@ -59,7 +61,41 @@ public class SearchFilterFetcher {
         return searchFilters;
     }
 
+    public String getCompleteSearchFilterURL(){
+        Log.d("TAG", "getCompleteSearchFilterURL: "+searchFilters.size());
+        boolean fetchFlag = false; //flag for filter if its done fetching or not
+        StringBuilder stringBuilder = new StringBuilder();
+        for(SearchFilter searchFilter: searchFilters){
+            if(!searchFilter.isDoneFetching)
+            {
+                fetchFlag = true;
+                break;
+            }
+            searchFilter.finalizeFilterPosition();
+            stringBuilder.append("/").append(searchFilter.getFilterValue());
+        }
+        if(fetchFlag){
+            return "";
+        }else{
+            return String.valueOf(stringBuilder);
+        }
+    }
+
     public boolean getIsDoneFetching(){
         return isDoneFetching;
+    }
+
+    //check if filter are in default mode
+    public boolean isDefaultFilters(){
+        int i = 0;
+        boolean isDefault = true;
+        for(SearchFilter searchFilter: searchFilters){
+            Log.d("", "isDefaultFilters: "+filterDefaults[i] + searchFilter.getFilterPositionValue(searchFilter.getFilterPosition()));
+            if(!filterDefaults[i].equals(searchFilter.getFilterPositionValue(searchFilter.getFilterPosition()))){
+                isDefault = false;
+            }
+            i++;
+        }
+        return isDefault;
     }
 }

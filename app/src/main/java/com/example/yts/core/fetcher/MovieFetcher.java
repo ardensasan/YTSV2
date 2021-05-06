@@ -8,12 +8,16 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class MovieFetcher {
     private boolean isDoneFetching = false;
     private ArrayList<Movie> movies = new ArrayList<>();
-    private String resultNum = null;
+    private String resultNumString = null;
+    private Integer resultNum;
     private Integer totalPages = 1;
 
     public MovieFetcher(String url, String elementID, String elementClass){
@@ -57,7 +61,10 @@ public class MovieFetcher {
                 try {
                     Document doc = Jsoup.connect(url).get();
                     Elements elements = doc.getElementsByClass(elementClass);
-                    resultNum = doc.select("h2").text();
+                    resultNumString = doc.select("h2").text();
+                    NumberFormat format = NumberFormat.getInstance(Locale.US);
+                    Number number = format.parse(doc.select("h2").select("b").text());
+                    resultNum = number.intValue();
                     for (Element element : elements) {
                         String moviePosterURL = element.getElementsByTag("img").attr("abs:src");
                         String movieURL = element.getElementsByTag("a").attr("href");
@@ -66,14 +73,9 @@ public class MovieFetcher {
                         Movie movie = new Movie(moviePosterURL, movieURL, movieTitle, movieYear);
                         movies.add(movie);
                     }
-                    Element element = doc.getElementsByClass("tsc_pagination tsc_paginationA tsc_paginationA06").first();
-                    element = element.getElementsByTag("a").last();
-                    if(element != null){
-                        String string = element.attr("abs:href");
-                        totalPages = Integer.parseInt(string.substring(string.lastIndexOf("=") + 1));
-                    }
+                    totalPages = (int)Math.ceil(resultNum/20.0);
                     isDoneFetching = true;
-                } catch (IOException e) {
+                } catch (IOException | ParseException e) {
                     e.printStackTrace();
                 }
             }
@@ -81,8 +83,8 @@ public class MovieFetcher {
         thread.start();
     }
 
-    public String getResultNum(){
-        return resultNum;
+    public String getResultNumString(){
+        return resultNumString;
     }
     public ArrayList<Movie> getFetchedMovies(){
         return movies;

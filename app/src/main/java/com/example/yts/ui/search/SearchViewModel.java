@@ -1,5 +1,6 @@
 package com.example.yts.ui.search;
 
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -17,6 +18,7 @@ public class SearchViewModel extends ViewModel {
     private MutableLiveData<ArrayList<SearchFilter>> searchFilters;
     private MovieFetcher movieFetcher;
     private SearchFilterFetcher searchFilterFetcher;
+    private boolean isInterrupted = false;
 
     public SearchViewModel() {
         movieList = new MutableLiveData<>();
@@ -52,29 +54,36 @@ public class SearchViewModel extends ViewModel {
     }
 
     public void fetchSearchFilters(String url) throws IOException {
+        isInterrupted = false;
         searchFilterFetcher = new SearchFilterFetcher(url);
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 while(!searchFilterFetcher.getIsDoneFetching()){
+                    if(isInterrupted){
+                        break;
+                    }
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
-                searchFilters.postValue(searchFilterFetcher.getSearchFilters());
+                searchFilterFetcher.getSearchFilters();
             }
         });
         thread.start();
         return;
     }
-
     public String getResultNum(){
-        return movieFetcher.getResultNum();
+        return movieFetcher.getResultNumString();
     }
 
     public Integer getTotalPages(){
         return movieFetcher.getTotalPages();
+    }
+
+    public void setInterrupted(boolean bool){
+        isInterrupted = bool;
     }
 }
