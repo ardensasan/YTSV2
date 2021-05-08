@@ -72,9 +72,9 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
                 alertDialogBuilder.setTitle("Delete "+torrent.getTorrentName()+"?");
                 alertDialogBuilder.setCancelable(true);
 
-                String[] animals = {"Also delete files in storage"};
+                String[] strings = {"Also delete files in storage"};
                 boolean[] checkedItems = {false};
-                alertDialogBuilder.setMultiChoiceItems(animals, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
+                alertDialogBuilder.setMultiChoiceItems(strings, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                         deleteFolder[0] = isChecked;
