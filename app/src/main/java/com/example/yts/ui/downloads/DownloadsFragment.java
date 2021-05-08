@@ -2,7 +2,6 @@ package com.example.yts.ui.downloads;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,15 +14,10 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.yts.DownloadAdapter;
 import com.example.yts.R;
-import com.example.yts.core.classes.Movie;
-import com.example.yts.core.classes.MovieDetails;
 import com.example.yts.torrent.Torrent;
 import com.example.yts.torrent.TorrentDownloadsList;
 
-import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class DownloadsFragment extends Fragment {

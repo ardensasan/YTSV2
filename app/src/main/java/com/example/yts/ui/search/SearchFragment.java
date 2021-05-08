@@ -89,8 +89,6 @@ public class SearchFragment extends Fragment {
             searchViewModel = new ViewModelProvider(this).get(SearchViewModel.class);
             StringBuilder url = new StringBuilder();
             url.append(getString(R.string.yts_movies));
-            Log.d("", "onCreateView: "+searchFilterFetcher.isDefaultFilters());
-            Log.d("", "onCreateView: "+query);
             if(query.equals("0") && !searchFilterFetcher.isDefaultFilters()){
                 url.append("/").append(query).append(searchFilterFetcher.getCompleteSearchFilterURL());
             }else if(!query.equals("0")){
@@ -99,7 +97,6 @@ public class SearchFragment extends Fragment {
             if(currentPage != 1){
                 url.append("?page=").append(currentPage);
             }
-            Log.d("", "onCreateView: "+url);
             searchViewModel.fetchMovies(String.valueOf(url), "browse-movie-wrap col-xs-10 col-sm-4 col-md-5 col-lg-4");
             displayPagination = new DisplayPagination();
         }

@@ -48,8 +48,8 @@ public class TorrentDownloadsList extends Application {
     }
 
     //remove torrent from list
-    public void removeTorrent(Torrent torrent){
-        torrent.removeTorrent();
+    public void removeTorrent(Torrent torrent,boolean deleteFolder){
+        torrent.removeTorrent(deleteFolder);
         torrentDownloadsList.remove(torrent);
     }
 

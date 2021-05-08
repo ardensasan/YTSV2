@@ -62,7 +62,6 @@ public class SearchFilterFetcher {
     }
 
     public String getCompleteSearchFilterURL(){
-        Log.d("TAG", "getCompleteSearchFilterURL: "+searchFilters.size());
         boolean fetchFlag = false; //flag for filter if its done fetching or not
         StringBuilder stringBuilder = new StringBuilder();
         for(SearchFilter searchFilter: searchFilters){
@@ -90,7 +89,6 @@ public class SearchFilterFetcher {
         int i = 0;
         boolean isDefault = true;
         for(SearchFilter searchFilter: searchFilters){
-            Log.d("", "isDefaultFilters: "+filterDefaults[i] + searchFilter.getFilterPositionValue(searchFilter.getFilterPosition()));
             if(!filterDefaults[i].equals(searchFilter.getFilterPositionValue(searchFilter.getFilterPosition()))){
                 isDefault = false;
             }

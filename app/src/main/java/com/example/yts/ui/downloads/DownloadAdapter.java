@@ -1,22 +1,23 @@
-package com.example.yts;
+package com.example.yts.ui.downloads;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.yts.R;
 import com.example.yts.torrent.Torrent;
 import com.example.yts.torrent.TorrentDownloadsList;
 
@@ -63,10 +64,33 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
         }else{
             holder.ibtn_download_action.setImageResource(R.drawable.ic_baseline_pause_circle_outline_24);
         }
+
+        final boolean[] deleteFolder = {false};
         holder.ibtn_download_action.setOnClickListener(v -> {
             if(torrent.getIsSelected()){
-                ((TorrentDownloadsList) activity.getApplication()).removeTorrent(torrent);
-                Log.d("", "onClick: Remove");
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
+                alertDialogBuilder.setTitle("Delete "+torrent.getTorrentName()+"?");
+                alertDialogBuilder.setCancelable(true);
+
+                String[] animals = {"Also delete files in storage"};
+                boolean[] checkedItems = {false};
+                alertDialogBuilder.setMultiChoiceItems(animals, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                        deleteFolder[0] = isChecked;
+                    }
+                });
+
+                alertDialogBuilder.setPositiveButton("Yes",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                ((TorrentDownloadsList) activity.getApplication()).removeTorrent(torrent,deleteFolder[0]);
+                            }
+                        });
+                alertDialogBuilder.setNegativeButton("No", null);
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
             }else if(torrent.getIsPaused()){
                 torrent.resumeTorrent();
             }else{

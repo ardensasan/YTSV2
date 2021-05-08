@@ -25,6 +25,7 @@ public class Torrent extends Thread implements Serializable {
     private boolean isTimedOut = false;
     private boolean isSelected = false; //torrent is select in recyclerview
     private boolean isRemoved = false;
+    private File torrentFolder;
 
     public Torrent(String magnetURI){
         this.magnetURI = magnetURI;
@@ -126,6 +127,7 @@ public class Torrent extends Thread implements Serializable {
                 torrentInfo = TorrentInfo.bdecode(data);
                 sessionManager.download(torrentInfo, saveDir);
                 torrentName = torrentInfo.name();
+                torrentFolder = new File(Environment.getExternalStorageDirectory()+"/Download/"+torrentName);
                 torrentHandle = sessionManager.find(torrentInfo.infoHash());
             }
         }
@@ -269,7 +271,18 @@ public class Torrent extends Thread implements Serializable {
         return isSelected;
     }
 
-    public void removeTorrent(){
+    public void removeTorrent(boolean deleteFolder){
         new Thread(() -> sessionManager.stop()).start();
+        if(deleteFolder){
+            if (torrentFolder.isDirectory())
+            {
+                String[] children = torrentFolder.list();
+                for (int i = 0; i < children.length; i++)
+                {
+                    new File(torrentFolder, children[i]).delete();
+                }
+                torrentFolder.delete();
+            }
+        }
     }
 }

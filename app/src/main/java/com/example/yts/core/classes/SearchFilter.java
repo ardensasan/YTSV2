@@ -21,14 +21,12 @@ public class SearchFilter {
         if(filterCSSQuery == "language"){
             filterPosition = 2;
         }
-        Log.d("", "SearchFilter: "+filterName);
         Elements elements = content.select("select[name=\""+filterCSSQuery+"\"]").select("select option");
         for(Element element:elements){
             filterItems.add(element.text());
             filterItemsValue.add(element.attr("value"));
 
         }
-        Log.d("", "SearchFilter: "+filterItemsValue);
         isDoneFetching = true;
     }
 
