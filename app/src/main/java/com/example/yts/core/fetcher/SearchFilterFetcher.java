@@ -76,7 +76,6 @@ public class SearchFilterFetcher {
                 fetchFlag = true;
                 break;
             }
-            searchFilter.finalizeFilterPosition();
             stringBuilder.append("/").append(searchFilter.getFilterValue());
         }
         if(fetchFlag){

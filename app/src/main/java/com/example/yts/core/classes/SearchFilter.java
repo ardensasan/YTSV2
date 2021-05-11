@@ -14,7 +14,6 @@ public class SearchFilter {
     private Integer filterPosition = 0;
     private Integer defaultPosition = 0;
     public boolean isDoneFetching;
-    private Integer tempFilterPosition; //holds the position of filter selected before clicking the search submit button
 
     public SearchFilter(String filterName, Element content, String filterCSSQuery){
         isDoneFetching = false;
@@ -47,16 +46,11 @@ public class SearchFilter {
         return filterPosition;
     }
 
-    public void setTempFilterPosition(Integer tempFilterPosition){
-        this.tempFilterPosition = tempFilterPosition;
-    }
-
-    public void finalizeFilterPosition(){
-        filterPosition = tempFilterPosition;
+    public void setFilterPosition(int position){
+        this.filterPosition = position;
     }
 
     public String getFilterValue(){
-        Log.d("", "getFilterValue: "+filterItemsValue);
         if(!isDoneFetching){
             return "";
         }else{

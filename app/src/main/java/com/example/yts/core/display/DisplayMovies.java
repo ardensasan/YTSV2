@@ -60,15 +60,16 @@ public class DisplayMovies extends AppCompatActivity {
     }
 
     public void display(LinearLayout linearLayout, Activity activity, FragmentManager fragmentManager){
+        int movie_per_row = activity.getResources().getInteger(R.integer.movie_per_row);
         LinearLayout ll;
         LinearLayout llh_browse_movies = new LinearLayout(activity);
-        int imageWidth = (Resources.getSystem().getDisplayMetrics().widthPixels / 2) - 20;
+        int imageWidth = (Resources.getSystem().getDisplayMetrics().widthPixels / movie_per_row) - 20;
         int imageHeight = imageWidth * activity.getResources().getInteger(R.integer.movie_poster_height) / activity.getResources().getInteger(R.integer.movie_poster_width);
         llh_browse_movies.setOrientation(LinearLayout.HORIZONTAL);
         int i = -1;
         for (Movie movie: movies) {
             i++;
-            if (i % 2 == 0) {
+            if (i % movie_per_row == 0) {
                 llh_browse_movies = new LinearLayout(activity);
                 llh_browse_movies.setOrientation(LinearLayout.HORIZONTAL);
                 linearLayout.addView(llh_browse_movies);

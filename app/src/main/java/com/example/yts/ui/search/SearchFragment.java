@@ -64,7 +64,7 @@ public class SearchFragment extends Fragment {
             public void onClick(View v) {
                 searchViewModel = null;
                 searchFilterFetcher.setDefaultFilters();
-                fragmentManager.beginTransaction().replace(R.id.fl_fragment_container,  new SearchFragment(fragmentManager, query,1), "search").addToBackStack("search").commit();
+                fragmentManager.beginTransaction().replace(R.id.fl_fragment_container,  new SearchFragment(fragmentManager, "0",1), "search").addToBackStack("search").commit();
             }
         });
         String queryText = "";
@@ -79,6 +79,7 @@ public class SearchFragment extends Fragment {
                 if(query.isEmpty()){
                     query = "0";
                 }
+                searchFilterFetcher.setDefaultFilters();
                 fragmentManager.beginTransaction().replace(R.id.fl_fragment_container,  new SearchFragment(fragmentManager, query,1), "search").addToBackStack("search").commit();
                 return true;
             }
@@ -115,7 +116,7 @@ public class SearchFragment extends Fragment {
             displayMovies = new DisplayMovies(movies);
             displayMovies.display(llv_browse_movies, getActivity(), searchViewModel.getResultNum(),fragmentManager);
             displayPagination.display(query, currentPage, searchViewModel.getTotalPages(), llh_pagination, getActivity(), fragmentManager);
-            displayFilters.displayFilters(searchFilterFetcher.getSearchFilters(), llh_movie_filters, getActivity());
+            displayFilters.displayFilters(searchFilterFetcher.getSearchFilters(), llh_movie_filters, getActivity(),fragmentManager, query);
         });
         return root;
     }
