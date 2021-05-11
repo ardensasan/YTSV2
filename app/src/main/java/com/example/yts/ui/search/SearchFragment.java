@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -57,6 +58,15 @@ public class SearchFragment extends Fragment {
         LinearLayout llh_movie_filters = root.findViewById(R.id.llh_movie_filters);
         LinearLayout llh_pagination = root.findViewById(R.id.llh_pagination);
         SearchView searchView = root.findViewById(R.id.sv_search_movies);
+        Button btn_browse_movies = root.findViewById(R.id.btn_browse_movies);
+        btn_browse_movies.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchViewModel = null;
+                searchFilterFetcher.setDefaultFilters();
+                fragmentManager.beginTransaction().replace(R.id.fl_fragment_container,  new SearchFragment(fragmentManager, query,1), "search").addToBackStack("search").commit();
+            }
+        });
         String queryText = "";
         if(query != "0"){
             queryText = query;

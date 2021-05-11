@@ -12,6 +12,7 @@ public class SearchFilter {
     private ArrayList<String> filterItems  = new ArrayList<>();
     private ArrayList<String> filterItemsValue = new ArrayList<>();
     private Integer filterPosition = 0;
+    private Integer defaultPosition = 0;
     public boolean isDoneFetching;
     private Integer tempFilterPosition; //holds the position of filter selected before clicking the search submit button
 
@@ -20,6 +21,7 @@ public class SearchFilter {
         this.filterName = filterName;
         if(filterCSSQuery == "language"){
             filterPosition = 2;
+            defaultPosition = 2;
         }
         Elements elements = content.select("select[name=\""+filterCSSQuery+"\"]").select("select option");
         for(Element element:elements){
@@ -65,7 +67,12 @@ public class SearchFilter {
     public boolean getIsDoneFetching(){
         return isDoneFetching;
     }
+
     public String getFilterPositionValue(Integer filterPosition){
         return filterItemsValue.get(filterPosition);
+    }
+
+    public void setDefaultFilterPosition(){
+        filterPosition = defaultPosition;
     }
 }

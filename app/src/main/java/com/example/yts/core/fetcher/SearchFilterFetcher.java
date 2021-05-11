@@ -61,6 +61,12 @@ public class SearchFilterFetcher {
         return searchFilters;
     }
 
+    public void setDefaultFilters(){
+        for(SearchFilter searchFilter: searchFilters){
+            searchFilter.setDefaultFilterPosition();
+        }
+    }
+
     public String getCompleteSearchFilterURL(){
         boolean fetchFlag = false; //flag for filter if its done fetching or not
         StringBuilder stringBuilder = new StringBuilder();
