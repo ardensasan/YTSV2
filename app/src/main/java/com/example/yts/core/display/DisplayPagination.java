@@ -1,24 +1,17 @@
 package com.example.yts.core.display;
 
 import android.app.Activity;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.SearchView;
 import android.widget.TextView;
-
-import androidx.fragment.app.Fragment;
+import android.widget.Toast;
 import androidx.fragment.app.FragmentManager;
-
 import com.example.yts.R;
 import com.example.yts.ui.search.SearchFragment;
-import com.example.yts.ui.search.SearchViewModel;
-
-import java.io.IOException;
 
 public class DisplayPagination {
     public void display(String query, Integer currentPage, Integer totalPages, LinearLayout linearLayout, Activity activity, FragmentManager fragmentManager){
@@ -61,7 +54,12 @@ public class DisplayPagination {
                 // If the event is a key-down event on the "enter" button
                 if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
                         (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    //TODO change page
+                    Integer i = Integer.parseInt(String.valueOf(editText.getText()));
+                    if(i > 0 && i <= totalPages){
+                        fragmentManager.beginTransaction().replace(R.id.fl_fragment_container, new SearchFragment(fragmentManager, query,i), "search").addToBackStack("search").commit();
+                    }else{
+                        Toast.makeText(activity,"Invalid page",Toast.LENGTH_SHORT).show();
+                    }
                     return true;
                 }
                 return false;
