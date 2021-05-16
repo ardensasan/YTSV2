@@ -2,12 +2,17 @@ package com.example.yts.ui.downloads;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -17,6 +22,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.yts.R;
 import com.example.yts.torrent.Torrent;
 import com.example.yts.torrent.TorrentDownloadsList;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
@@ -34,8 +41,11 @@ public class DownloadsFragment extends Fragment {
             downloadsViewModel = new ViewModelProvider(this).get(DownloadsViewModel.class);
 
         }
+        getActivity().invalidateOptionsMenu();
         isOnFragment = true;
         View root = inflater.inflate(R.layout.fragment_downloads, container, false);
+        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        actionBar.setTitle(R.string.title_downloads);
         TextView textView = root.findViewById(R.id.tv_downloads);
         textView.setText("Loading Downloads..");
         recyclerView = root.findViewById(R.id.rv_downloads);

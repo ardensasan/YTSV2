@@ -5,6 +5,8 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 
@@ -26,6 +28,8 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -35,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView navView;
     private SearchFilterFetcher searchFilterFetcher;
     private ArrayList<Integer> fragmentIndex = new ArrayList<>();
+    private boolean onDownloadsSection = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +56,27 @@ public class MainActivity extends AppCompatActivity {
         requestPermission();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        if(onDownloadsSection){
+            boolean bool = ((TorrentDownloadsList) getApplication()).getIsHighlighted();
+            menu.setGroupVisible(R.id.group_1,true);
+            if(bool){
+                menu.findItem(R.id.clear).setVisible(true);
+                menu.findItem(R.id.delete).setVisible(true);
+            }else{
+                menu.findItem(R.id.clear).setVisible(false);
+                menu.findItem(R.id.delete).setVisible(false);
+            }
+        }else{
+            menu.setGroupVisible(R.id.group_1,false);
+        }
+        return super.onCreateOptionsMenu(menu);
+    }
+
+
 
     private BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener(){
         String fragmentTag = "";
@@ -63,6 +89,8 @@ public class MainActivity extends AppCompatActivity {
                         selectedFragment = new HomeFragment(getSupportFragmentManager());
                         fragmentIndex.add(0);
                         fragmentTag = "home";
+                        invalidateOptionsMenu();
+                        onDownloadsSection = false;
                     }
                     break;
                 case R.id.navigation_search:
@@ -71,6 +99,8 @@ public class MainActivity extends AppCompatActivity {
                         selectedFragment = new SearchFragment(getSupportFragmentManager(), searchFilterFetcher);
                         fragmentIndex.add(1);
                         fragmentTag = "search";
+                        invalidateOptionsMenu();
+                        onDownloadsSection = false;
                     }
                     break;
                 case R.id.navigation_downloads:
@@ -79,6 +109,8 @@ public class MainActivity extends AppCompatActivity {
                         selectedFragment = new DownloadsFragment();
                         fragmentIndex.add(2);
                         fragmentTag = "downloads";
+                        invalidateOptionsMenu();
+                        onDownloadsSection = true;
                     }
                     break;
             }

@@ -58,7 +58,7 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
         });
 
         if(torrent.getIsSelected()){
-            holder.ibtn_download_action.setImageResource(R.drawable.ic_baseline_delete_24);
+            holder.ibtn_download_action.setImageResource(android.R.color.transparent);
         }else if(torrent.getIsPaused()){
             holder.ibtn_download_action.setImageResource(R.drawable.ic_baseline_resume_circle_outline_24);
         }else{

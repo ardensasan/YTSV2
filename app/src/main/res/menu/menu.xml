@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+        <group android:id="@+id/group_1">
+                <item android:id="@+id/select"
+                    android:title="@string/select"
+                    app:showAsAction="never"/>
+
+                <item android:id="@+id/select_all"
+                    android:title="@string/select_all"
+                    app:showAsAction="never"/>
+
+                <item android:id="@+id/clear_downloads"
+                    android:title="@string/clear_downloads"
+                    app:showAsAction="never"/>
+
+                <item android:id="@+id/delete_downloads"
+                    android:title="@string/delete_downloads"
+                    app:showAsAction="never"/>
+
+                <item android:id="@+id/clear"
+                    android:icon="@drawable/ic_baseline_clear_24"
+                    android:title="@string/clear"
+                    app:showAsAction="ifRoom"/>
+
+                <item android:id="@+id/delete"
+                    android:icon="@drawable/ic_baseline_delete_24"
+                    android:title="@string/delete"
+                    app:showAsAction="ifRoom"/>
+        </group>
+
+</menu>

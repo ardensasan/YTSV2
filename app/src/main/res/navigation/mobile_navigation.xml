@@ -14,13 +14,13 @@
     <fragment
         android:id="@+id/navigation_search"
         android:name="com.example.yts.ui.search.SearchFragment"
-        android:label="@string/title_dashboard"
+        android:label="@string/title_search"
         tools:layout="@layout/fragment_search" />
 
     <fragment
         android:id="@+id/navigation_downloads"
         android:name="com.example.yts.ui.downloads.DownloadsFragment"
-        android:label="@string/title_notifications"
+        android:label="@string/title_downloads"
         tools:layout="@layout/fragment_downloads" />
 
     <fragment
