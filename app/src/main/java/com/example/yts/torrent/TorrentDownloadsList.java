@@ -2,14 +2,13 @@ package com.example.yts.torrent;
 
 import android.app.Activity;
 import android.app.Application;
-import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class TorrentDownloadsList extends Application {
     private static ArrayList<Torrent> torrentDownloadsList = new ArrayList<>();
-    private boolean hasHiglightedItem = false;
 
     public ArrayList<Torrent> getTorrentDownloadsList(){
         return torrentDownloadsList;
@@ -53,15 +52,39 @@ public class TorrentDownloadsList extends Application {
         torrentDownloadsList.remove(torrent);
     }
 
-    public boolean getIsHighlighted(){
-        return hasHiglightedItem;
+    public boolean getHasSelectedItem(){
+        for(Torrent torrent: torrentDownloadsList){
+            if(torrent.getIsSelected()){
+                return true;
+            }
+        }
+        return false;
     }
 
-    public void setIsHighlighted(boolean bool){
-        hasHiglightedItem = bool;
-        if(!bool){
-            for(Torrent torrent: torrentDownloadsList){
-                torrent.setIsSelected(false);
+    public void resetSelectedItems(){
+        for(Torrent torrent: torrentDownloadsList){
+            torrent.setIsSelected(false);
+        }
+    }
+
+    public void selectAllTorrents(){
+        for(Torrent torrent: torrentDownloadsList){
+            torrent.setIsSelected(true);
+        }
+    }
+
+    public void selectedItemClearDelete(boolean delete){
+        for (Torrent torrent: torrentDownloadsList){
+            if(torrent.getIsSelected()){
+                torrent.pauseTorrent();
+                torrent.removeTorrent(delete);
+            }
+        }
+        Iterator<Torrent> iterator = torrentDownloadsList.iterator();
+        while (iterator.hasNext()){
+            Torrent torrent = iterator.next();
+            if(torrent.getIsSelected()){
+                iterator.remove();
             }
         }
     }

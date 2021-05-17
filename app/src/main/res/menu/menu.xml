@@ -18,11 +18,6 @@
                     android:title="@string/delete_downloads"
                     app:showAsAction="never"/>
 
-                <item android:id="@+id/clear"
-                    android:icon="@drawable/ic_baseline_clear_24"
-                    android:title="@string/clear"
-                    app:showAsAction="ifRoom"/>
-
                 <item android:id="@+id/delete"
                     android:icon="@drawable/ic_baseline_delete_24"
                     android:title="@string/delete"

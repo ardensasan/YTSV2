@@ -19,8 +19,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.yts.R;
 import com.example.yts.torrent.Torrent;
-import com.example.yts.torrent.TorrentDownloadsList;
-
 import java.util.ArrayList;
 
 
@@ -50,58 +48,33 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
         holder.tv_total_download.setText(torrent.getTotalDownload());
         holder.tv_total_download_percentage.setText(torrent.getProgress() + "%");
         holder.tv_download_speed.setText(torrent.getSpeed());
-
-        holder.llh_downloads.setOnLongClickListener(v -> {
-            torrent.setIsSelected(true);
-            ((TorrentDownloadsList) activity.getApplication()).setIsHighlighted(true);
+        holder.itemView.setOnLongClickListener(v -> {
+            torrent.setIsSelected(!torrent.getIsSelected());
+            activity.invalidateOptionsMenu();
             return false;
         });
 
         if(torrent.getIsSelected()){
-            holder.ibtn_download_action.setImageResource(android.R.color.transparent);
-        }else if(torrent.getIsPaused()){
-            holder.ibtn_download_action.setImageResource(R.drawable.ic_baseline_resume_circle_outline_24);
+            holder.llh_downloads.setBackgroundColor(Color.CYAN);
+            holder.ibtn_download_action.setVisibility(View.INVISIBLE);
         }else{
-            holder.ibtn_download_action.setImageResource(R.drawable.ic_baseline_pause_circle_outline_24);
+            holder.llh_downloads.setBackgroundColor(Color.TRANSPARENT);
+            holder.ibtn_download_action.setVisibility(View.VISIBLE);
+            if(torrent.getIsPaused()){
+                holder.ibtn_download_action.setImageResource(R.drawable.ic_baseline_resume_circle_outline_24);
+            }else{
+                holder.ibtn_download_action.setImageResource(R.drawable.ic_baseline_pause_circle_outline_24);
+            }
         }
 
         final boolean[] deleteFolder = {false};
         holder.ibtn_download_action.setOnClickListener(v -> {
-            if(torrent.getIsSelected()){
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
-                alertDialogBuilder.setTitle("Delete "+torrent.getTorrentName()+"?");
-                alertDialogBuilder.setCancelable(true);
-
-                String[] strings = {"Also delete files in storage"};
-                boolean[] checkedItems = {false};
-                alertDialogBuilder.setMultiChoiceItems(strings, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                        deleteFolder[0] = isChecked;
-                    }
-                });
-
-                alertDialogBuilder.setPositiveButton("Yes",
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                ((TorrentDownloadsList) activity.getApplication()).removeTorrent(torrent,deleteFolder[0]);
-                            }
-                        });
-                alertDialogBuilder.setNegativeButton("No", null);
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                alertDialog.show();
-            }else if(torrent.getIsPaused()){
+            if(torrent.getIsPaused()){
                 torrent.resumeTorrent();
             }else{
                 torrent.pauseTorrent();
             }
         });
-        if(torrent.getIsSelected()){
-            holder.llh_downloads.setBackgroundColor(Color.CYAN);
-        }else{
-            holder.llh_downloads.setBackgroundColor(Color.TRANSPARENT);
-        }
     }
 
     @Override
